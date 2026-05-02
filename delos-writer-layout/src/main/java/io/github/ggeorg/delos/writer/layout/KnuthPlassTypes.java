@@ -7,11 +7,9 @@ import java.util.Objects;
 /**
  * Shared token/value types for Delos' non-greedy line breaking pipeline.
  *
- * <p>v12 H2 introduces the canonical Knuth-Plass vocabulary — boxes, glue,
- * penalties, and resolved breakpoints — without changing the production
- * layout strategy yet. The intent is to make the next milestone focus only on
- * paragraph tokenization/materialization rather than inventing the types and
- * scoring model at the same time.</p>
+ * <p>The vocabulary follows the Knuth-Plass model: boxes, glue, penalties, and
+ * resolved breakpoints. Keeping these value types isolated lets paragraph
+ * tokenization, scoring, and line materialization evolve independently.</p>
  */
 public final class KnuthPlassTypes {
     public static final int POSITIVE_INFINITY = 10_000;

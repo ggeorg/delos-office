@@ -90,4 +90,72 @@ final class LiangHyphenatorTest {
 
         assertFalse(hyphenator.hyphenationPoints("Paragraph").isEmpty());
     }
+
+    @Test
+    void cacheIsBoundedAndEvictsLeastRecentlyUsedWords() {
+        LiangHyphenator hyphenator = new LiangHyphenator(
+                List.of("a1bcdefgh", "b1bcdefgh", "c1bcdefgh", "d1bcdefgh"),
+                new HyphenationPolicy(1, 1, 3, true, 25, 600, 1200),
+                3
+        );
+
+        hyphenator.hyphenationPoints("abcdefgh");
+        hyphenator.hyphenationPoints("bbcdefgh");
+        hyphenator.hyphenationPoints("cbcdefgh");
+        assertEquals(3, hyphenator.cachedWordCount());
+
+        // Touch the first word so the second word becomes the eldest entry.
+        hyphenator.hyphenationPoints("abcdefgh");
+        hyphenator.hyphenationPoints("dbcdefgh");
+
+        assertEquals(3, hyphenator.cachedWordCount());
+        assertTrue(hyphenator.hasCachedWord("abcdefgh"));
+        assertFalse(hyphenator.hasCachedWord("bbcdefgh"));
+        assertTrue(hyphenator.hasCachedWord("cbcdefgh"));
+        assertTrue(hyphenator.hasCachedWord("dbcdefgh"));
+    }
+
+    @Test
+    void cacheCanBeDisabledForMemorySensitiveCallers() {
+        LiangHyphenator hyphenator = new LiangHyphenator(
+                List.of("a1bcdefgh"),
+                new HyphenationPolicy(1, 1, 3, true, 25, 600, 1200),
+                0
+        );
+
+        assertEquals(List.of(1), hyphenator.hyphenationPoints("abcdefgh"));
+        assertEquals(0, hyphenator.cachedWordCount());
+    }
+
+    @Test
+    void unsafeAndOversizedTokensAreNotCached() {
+        LiangHyphenator hyphenator = new LiangHyphenator(
+                List.of("de1mon1stra1tion"),
+                HyphenationPolicy.english(),
+                10
+        );
+
+        hyphenator.hyphenationPoints("NASA");
+        hyphenator.hyphenationPoints("A320neo");
+        hyphenator.hyphenationPoints("https://example.com");
+        hyphenator.hyphenationPoints("already-hyphenated");
+        hyphenator.hyphenationPoints("x".repeat(81));
+
+        assertEquals(0, hyphenator.cachedWordCount());
+    }
+
+    @Test
+    void safeOrdinaryWordsAreCachedWithoutChangingHyphenationResult() {
+        LiangHyphenator hyphenator = new LiangHyphenator(
+                List.of("de1mon1stra1tion"),
+                HyphenationPolicy.english(),
+                10
+        );
+
+        assertEquals(List.of(2, 5, 9), hyphenator.hyphenationPoints("demonstration"));
+        assertTrue(hyphenator.hasCachedWord("demonstration"));
+        assertEquals(List.of(2, 5, 9), hyphenator.hyphenationPoints("demonstration"));
+        assertEquals(1, hyphenator.cachedWordCount());
+    }
+
 }

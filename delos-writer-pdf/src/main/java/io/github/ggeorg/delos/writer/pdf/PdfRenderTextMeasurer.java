@@ -36,12 +36,8 @@ public final class PdfRenderTextMeasurer implements RenderTextMeasurer, TextMeas
             return 0.0;
         }
         RenderFont resolvedFont = fonts.resolve(Objects.requireNonNull(font, "font"));
-        try {
-            PDFont pdfFont = fonts.fontFor(resolvedFont, safeText);
-            return pdfFont.getStringWidth(safeText) / 1000.0 * resolvedFont.size();
-        } catch (IOException ex) {
-            throw new PdfRenderException(ex);
-        }
+        PDFont pdfFont = fonts.fontFor(resolvedFont, safeText);
+        return textWidthWithFont(pdfFont, safeText, resolvedFont);
     }
 
     @Override
@@ -68,16 +64,24 @@ public final class PdfRenderTextMeasurer implements RenderTextMeasurer, TextMeas
             return List.copyOf(stops);
         }
 
-        double previous = 0.0;
+        RenderFont resolvedFont = fonts.resolve(Objects.requireNonNull(font, "font"));
+        String safeText = PdfTextSanitizer.sanitize(sourceText);
+        PDFont pdfFont = safeText.isEmpty() ? null : fonts.fontFor(resolvedFont, safeText);
+
+        double runningWidth = 0.0;
         int index = 0;
         while (index < sourceText.length()) {
-            int next = sourceText.offsetByCodePoints(index, 1);
-            double nextWidth = textWidth(sourceText.substring(0, next), font);
-            for (int i = index + 1; i < next; i++) {
-                stops.add(previous);
+            int codePoint = sourceText.codePointAt(index);
+            int next = index + Character.charCount(codePoint);
+            double previousWidth = runningWidth;
+            String safeSegment = PdfTextSanitizer.sanitize(new String(Character.toChars(codePoint)));
+            if (!safeSegment.isEmpty()) {
+                runningWidth += textWidthWithFont(pdfFont, safeSegment, resolvedFont);
             }
-            stops.add(nextWidth);
-            previous = nextWidth;
+            for (int i = index + 1; i < next; i++) {
+                stops.add(previousWidth);
+            }
+            stops.add(runningWidth);
             index = next;
         }
         return List.copyOf(stops);
@@ -95,6 +99,17 @@ public final class PdfRenderTextMeasurer implements RenderTextMeasurer, TextMeas
                 caretStops(sourceText, font),
                 decorationMetrics(font, sourceText)
         );
+    }
+
+    private static double textWidthWithFont(PDFont pdfFont, String safeText, RenderFont font) {
+        if (safeText == null || safeText.isEmpty()) {
+            return 0.0;
+        }
+        try {
+            return pdfFont.getStringWidth(safeText) / 1000.0 * font.size();
+        } catch (IOException ex) {
+            throw new PdfRenderException(ex);
+        }
     }
 
     private TextDecorationMetrics decorationMetrics(RenderFont font, String text) {

@@ -1,5 +1,7 @@
 package io.github.ggeorg.delos.writer.document;
 
+import java.util.Locale;
+
 /**
  * Block-level paragraph styling.
  */
@@ -9,8 +11,11 @@ public record ParagraphStyle(
         double spacingBefore,
         double spacingAfter,
         double lineSpacingMultiplier,
-        ParagraphListStyle listStyle
+        ParagraphListStyle listStyle,
+        String languageTag
 ) {
+    public static final String DEFAULT_LANGUAGE_TAG = "en-US";
+
     public ParagraphStyle(
             Alignment alignment,
             double firstLineIndent,
@@ -21,9 +26,21 @@ public record ParagraphStyle(
         this(alignment, firstLineIndent, spacingBefore, spacingAfter, lineSpacingMultiplier, ParagraphListStyle.none());
     }
 
+    public ParagraphStyle(
+            Alignment alignment,
+            double firstLineIndent,
+            double spacingBefore,
+            double spacingAfter,
+            double lineSpacingMultiplier,
+            ParagraphListStyle listStyle
+    ) {
+        this(alignment, firstLineIndent, spacingBefore, spacingAfter, lineSpacingMultiplier, listStyle, DEFAULT_LANGUAGE_TAG);
+    }
+
     public ParagraphStyle {
         alignment = alignment == null ? Alignment.LEFT : alignment;
         listStyle = listStyle == null ? ParagraphListStyle.none() : listStyle;
+        languageTag = normalizeLanguageTag(languageTag);
         if (lineSpacingMultiplier <= 0) {
             throw new IllegalArgumentException("lineSpacingMultiplier must be > 0");
         }
@@ -42,27 +59,35 @@ public record ParagraphStyle(
     }
 
     public ParagraphStyle withAlignment(Alignment alignment) {
-        return new ParagraphStyle(alignment, firstLineIndent, spacingBefore, spacingAfter, lineSpacingMultiplier, listStyle);
+        return new ParagraphStyle(alignment, firstLineIndent, spacingBefore, spacingAfter, lineSpacingMultiplier, listStyle, languageTag);
     }
 
     public ParagraphStyle withFirstLineIndent(double firstLineIndent) {
-        return new ParagraphStyle(alignment, firstLineIndent, spacingBefore, spacingAfter, lineSpacingMultiplier, listStyle);
+        return new ParagraphStyle(alignment, firstLineIndent, spacingBefore, spacingAfter, lineSpacingMultiplier, listStyle, languageTag);
     }
 
     public ParagraphStyle withSpacingBefore(double spacingBefore) {
-        return new ParagraphStyle(alignment, firstLineIndent, spacingBefore, spacingAfter, lineSpacingMultiplier, listStyle);
+        return new ParagraphStyle(alignment, firstLineIndent, spacingBefore, spacingAfter, lineSpacingMultiplier, listStyle, languageTag);
     }
 
     public ParagraphStyle withSpacingAfter(double spacingAfter) {
-        return new ParagraphStyle(alignment, firstLineIndent, spacingBefore, spacingAfter, lineSpacingMultiplier, listStyle);
+        return new ParagraphStyle(alignment, firstLineIndent, spacingBefore, spacingAfter, lineSpacingMultiplier, listStyle, languageTag);
     }
 
     public ParagraphStyle withLineSpacingMultiplier(double lineSpacingMultiplier) {
-        return new ParagraphStyle(alignment, firstLineIndent, spacingBefore, spacingAfter, lineSpacingMultiplier, listStyle);
+        return new ParagraphStyle(alignment, firstLineIndent, spacingBefore, spacingAfter, lineSpacingMultiplier, listStyle, languageTag);
     }
 
     public ParagraphStyle withListStyle(ParagraphListStyle listStyle) {
-        return new ParagraphStyle(alignment, firstLineIndent, spacingBefore, spacingAfter, lineSpacingMultiplier, listStyle);
+        return new ParagraphStyle(alignment, firstLineIndent, spacingBefore, spacingAfter, lineSpacingMultiplier, listStyle, languageTag);
+    }
+
+    public ParagraphStyle withLanguageTag(String languageTag) {
+        return new ParagraphStyle(alignment, firstLineIndent, spacingBefore, spacingAfter, lineSpacingMultiplier, listStyle, languageTag);
+    }
+
+    public ParagraphStyle withoutLanguageTag() {
+        return withLanguageTag(null);
     }
 
     public ParagraphStyle asBulletListItem(int level) {
@@ -79,5 +104,17 @@ public record ParagraphStyle(
 
     public boolean isListItem() {
         return listStyle.enabled();
+    }
+
+    private static String normalizeLanguageTag(String value) {
+        if (value == null) {
+            return null;
+        }
+        String candidate = value.trim().replace('_', '-');
+        if (candidate.isEmpty()) {
+            return null;
+        }
+        String normalized = Locale.forLanguageTag(candidate).toLanguageTag();
+        return "und".equals(normalized) ? candidate : normalized;
     }
 }

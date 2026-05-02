@@ -17,9 +17,11 @@ import io.github.ggeorg.delos.writer.document.TableRow;
 import io.github.ggeorg.delos.writer.document.TableStyle;
 import io.github.ggeorg.delos.writer.document.TableColumnSpec;
 import io.github.ggeorg.delos.writer.document.TextPosition;
+import io.github.ggeorg.delos.writer.document.TextRun;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Pure document-editing helper working in logical paragraph/offset space.
@@ -37,6 +39,116 @@ public final class DocumentEditor {
         StoryEdit storyEdit = storyEditor.replace(document.body(), start, end, replacement);
         Document updatedDocument = replaceStory(document, StoryPath.body(), storyEdit.story());
         return DocumentEdit.ofCaret(updatedDocument, storyEdit.caretPosition(), description);
+    }
+
+    /**
+     * Replaces a body selection while treating any top-level blocks between the
+     * selected paragraph boundaries as selected content too.
+     *
+     * <p>This is the explicit mixed-block deletion/replacement path used by the
+     * visual editor. The historical {@link #replace(Document, SelectionRange,
+     * TextPosition, String, String)} API remains paragraph-projection-only for
+     * callers that intentionally want to preserve interleaved rich blocks.</p>
+     */
+    public DocumentEdit replaceIncludingInterleavedBlocks(
+            Document document,
+            SelectionRange selection,
+            TextPosition caret,
+            String replacement,
+            String description
+    ) {
+        Objects.requireNonNull(document, "document");
+        TextPosition start = selection != null && !selection.isCollapsed() ? selection.start() : caret;
+        TextPosition end = selection != null && !selection.isCollapsed() ? selection.end() : caret;
+        return replaceIncludingInterleavedBlocks(document, start, end, replacement, description);
+    }
+
+    public DocumentEdit replaceIncludingInterleavedBlocks(
+            Document document,
+            TextPosition start,
+            TextPosition end,
+            String replacement,
+            String description
+    ) {
+        Objects.requireNonNull(document, "document");
+        Objects.requireNonNull(start, "start");
+        Objects.requireNonNull(end, "end");
+
+        List<Paragraph> paragraphs = new ArrayList<>(document.paragraphs());
+        if (paragraphs.isEmpty()) {
+            paragraphs.add(Paragraph.of(""));
+        }
+
+        TextPosition safeStart = ParagraphRuns.clampPosition(paragraphs, start);
+        TextPosition safeEnd = ParagraphRuns.clampPosition(paragraphs, end);
+        if (safeStart.compareTo(safeEnd) > 0) {
+            TextPosition tmp = safeStart;
+            safeStart = safeEnd;
+            safeEnd = tmp;
+        }
+
+        int startBlockIndex = blockIndexForParagraph(document.blocks(), safeStart.paragraphIndex());
+        int endBlockIndex = blockIndexForParagraph(document.blocks(), safeEnd.paragraphIndex());
+        if (startBlockIndex < 0 || endBlockIndex < 0) {
+            return replace(document, safeStart, safeEnd, replacement, description);
+        }
+
+        Paragraph startParagraph = ((ParagraphBlock) document.blocks().get(startBlockIndex)).paragraph();
+        Paragraph endParagraph = ((ParagraphBlock) document.blocks().get(endBlockIndex)).paragraph();
+        List<TextRun> prefixRuns = ParagraphRuns.prefix(startParagraph, safeStart.offset());
+        List<TextRun> suffixRuns = ParagraphRuns.suffix(endParagraph, safeEnd.offset());
+        String[] replacementParts = ParagraphRuns.normalizeReplacement(replacement).split("\n", -1);
+
+        List<Paragraph> replacementParagraphs = new ArrayList<>();
+        TextPosition newCaret;
+        if (replacementParts.length == 1) {
+            List<TextRun> mergedRuns = new ArrayList<>(prefixRuns);
+            if (!replacementParts[0].isEmpty()) {
+                mergedRuns.add(TextRun.plain(replacementParts[0]));
+            }
+            mergedRuns.addAll(suffixRuns);
+            replacementParagraphs.add(new Paragraph(startParagraph.style(), mergedRuns));
+            newCaret = new TextPosition(safeStart.paragraphIndex(), safeStart.offset() + replacementParts[0].length());
+        } else {
+            List<TextRun> firstRuns = new ArrayList<>(prefixRuns);
+            if (!replacementParts[0].isEmpty()) {
+                firstRuns.add(TextRun.plain(replacementParts[0]));
+            }
+            replacementParagraphs.add(new Paragraph(startParagraph.style(), firstRuns));
+
+            for (int index = 1; index < replacementParts.length - 1; index++) {
+                replacementParagraphs.add(Paragraph.of(startParagraph.style(), replacementParts[index]));
+            }
+
+            List<TextRun> lastRuns = new ArrayList<>();
+            if (!replacementParts[replacementParts.length - 1].isEmpty()) {
+                lastRuns.add(TextRun.plain(replacementParts[replacementParts.length - 1]));
+            }
+            lastRuns.addAll(suffixRuns);
+            replacementParagraphs.add(new Paragraph(startParagraph.style(), lastRuns));
+            newCaret = new TextPosition(
+                    safeStart.paragraphIndex() + replacementParts.length - 1,
+                    replacementParts[replacementParts.length - 1].length()
+            );
+        }
+
+        List<Block> updated = new ArrayList<>();
+        for (int index = 0; index < startBlockIndex; index++) {
+            updated.add(document.blocks().get(index));
+        }
+        for (Paragraph paragraph : replacementParagraphs) {
+            updated.add(new ParagraphBlock(paragraph));
+        }
+        for (int index = endBlockIndex + 1; index < document.blocks().size(); index++) {
+            updated.add(document.blocks().get(index));
+        }
+        if (updated.stream().noneMatch(ParagraphBlock.class::isInstance)) {
+            updated.add(new ParagraphBlock(Paragraph.of("")));
+            newCaret = new TextPosition(0, 0);
+        }
+
+        Document updatedDocument = Document.fromBlocks(document.title(), document.pageStyle(), List.copyOf(updated), document.mediaItems());
+        return DocumentEdit.ofCaret(updatedDocument, newCaret, description);
     }
 
     public DocumentEdit replace(Document document, StoryPath storyPath, TextPosition start, TextPosition end, String replacement, String description) {
@@ -357,6 +469,19 @@ public final class DocumentEditor {
         return DocumentEdit.ofCaret(updatedDocument, caret, description == null ? "Replace Block" : description);
     }
 
+    private int blockIndexForParagraph(List<Block> blocks, int targetParagraphIndex) {
+        int paragraphIndex = 0;
+        for (int blockIndex = 0; blockIndex < blocks.size(); blockIndex++) {
+            if (blocks.get(blockIndex) instanceof ParagraphBlock) {
+                if (paragraphIndex == targetParagraphIndex) {
+                    return blockIndex;
+                }
+                paragraphIndex += 1;
+            }
+        }
+        return -1;
+    }
+
     private TextPosition boundaryCaretForStory(Document document, StoryPath storyPath) {
         if (storyPath instanceof TableCellStoryPath tableCellPath) {
             return nearestTextPositionAfterBlock(document.blocks(), tableCellPath.tableBlockIndex());
@@ -389,7 +514,7 @@ public final class DocumentEditor {
     private void rejectNestedTablesInTableCellStory(Story story) {
         for (Block block : story.blocks()) {
             if (block instanceof TableBlock) {
-                throw new IllegalArgumentException("Nested tables inside table cells are model-capable but disabled in v1");
+                throw new IllegalArgumentException("Nested tables inside table cells are model-capable but disabled for now");
             }
         }
     }

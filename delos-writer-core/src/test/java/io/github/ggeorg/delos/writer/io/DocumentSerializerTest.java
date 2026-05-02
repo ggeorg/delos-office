@@ -235,4 +235,21 @@ class DocumentSerializerTest {
         assertEquals("Invalid Delos document", exception.getMessage());
         assertTrue(exception.getCause() instanceof IllegalArgumentException);
     }
+
+
+    @Test
+    void roundTripsParagraphLanguageMetadataWhenExplicitlySet() {
+        Paragraph paragraph = Paragraph.of(
+                ParagraphStyle.defaultBody().withLanguageTag("el-GR"),
+                "γειά σου"
+        );
+        Document original = new Document("Language", PageStyle.a4Default(), List.of(paragraph));
+
+        String xml = serializer.toXml(original);
+        Document restored = serializer.fromXml(xml);
+
+        assertTrue(xml.contains("language=\"el-GR\""));
+        assertEquals("el-GR", restored.paragraphs().getFirst().style().languageTag());
+        assertEquals(original, restored);
+    }
 }

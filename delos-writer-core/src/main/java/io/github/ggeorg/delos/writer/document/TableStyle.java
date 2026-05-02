@@ -5,7 +5,7 @@ package io.github.ggeorg.delos.writer.document;
  *
  * <p>The values are deliberately renderer-neutral. Width is stored as a fraction
  * of the available text area, cell padding is stored in points, and borders are
- * a simple v1 on/off flag.</p>
+ * represented as a simple table-wide on/off flag.</p>
  */
 public record TableStyle(
         double widthFraction,

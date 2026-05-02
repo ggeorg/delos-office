@@ -3,22 +3,12 @@ package io.github.ggeorg.delos.writer.document;
 import java.util.Objects;
 
 /**
- * Container-aware caret/text position.
+ * Logical caret position inside the body story.
  *
- * <p>The current {@link TextPosition} is intentionally body-paragraph-only:
- * {@code paragraphIndex + offset}. That cannot scale to table cells, headers,
- * footers, footnotes, captions, or text boxes without adding special fields for
- * every container type.</p>
- *
- * <p>{@code CaretPosition} separates the two concerns:</p>
- * <ul>
- *     <li>{@link #storyPath()} identifies the editable story container.</li>
- *     <li>{@link #storyBlockIndex()} and {@link #offset()} identify a text
- *     position inside that story.</li>
- * </ul>
- *
- * <p>v74 introduces this value object as a foundation. The live editor can be
- * migrated from {@link TextPosition} in a later version.</p>
+ * <p>The caret is addressed by paragraph index and UTF-16 offset within the
+ * paragraph text. Offsets are intentionally model-level values; UI code may add
+ * pixel coordinates through hit-testing, but editing commands should stay in
+ * this stable coordinate system.</p>
  */
 public record CaretPosition(
         StoryPath storyPath,

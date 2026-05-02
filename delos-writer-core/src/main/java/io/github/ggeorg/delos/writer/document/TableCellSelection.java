@@ -1,12 +1,11 @@
 package io.github.ggeorg.delos.writer.document;
 
 /**
- * Selection/address of a table cell in top-level {@link Document#blocks()} space.
+ * Selection address for a whole table cell.
  *
- * <p>The block index points at a {@link TableBlock}. Row and column are zero-based.
- * v71 keeps table-cell editing deliberately coarse-grained: the cell is selected as
- * a unit, and the editor can replace the cell's paragraph text without introducing
- * a nested caret model yet.</p>
+ * <p>The cell is selected as an atomic region inside a top-level table block.
+ * Rich in-cell story editing builds on {@link TableCellStoryPath} without
+ * changing this selection address.</p>
  */
 public record TableCellSelection(
         int blockIndex,

@@ -11,12 +11,8 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * Baseline paragraph layout strategy for Delos.
- *
- * <p>This implementation performs greedy line breaking, preserves explicit line
- * breaks, and keeps logical character offsets stable for caret and selection
- * mapping. It is the stable reference implementation used while v12 introduces
- * richer typography strategies such as Knuth-Plass.</p>
+ * Simple greedy line breaker that preserves paragraph source offsets for caret
+ * mapping.
  */
 public final class GreedyParagraphLayouter implements ParagraphLayouter {
     private final TextMeasurer measurer;

@@ -10,8 +10,7 @@ import io.github.ggeorg.delos.writer.document.TextPosition;
  *
  * <p>Text hits expose a logical caret position. Whole-block hits expose a
  * {@link BlockSelection}. Table-cell hits expose a {@link TableCellSelection}
- * and, from v77 onward, may also expose a story-aware caret position inside the
- * cell's own story.</p>
+ * and may also expose a story-aware caret position inside the cell's own story.</p>
  */
 public record HitTestResult(
         TextPosition position,

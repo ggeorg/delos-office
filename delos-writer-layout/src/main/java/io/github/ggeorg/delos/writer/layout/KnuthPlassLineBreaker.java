@@ -6,12 +6,10 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * Experimental optimal breakpoint search for Delos paragraph layout.
+ * Optimal breakpoint search for Delos paragraph layout.
  *
  * <p>This class deliberately stops at the algorithmic boundary: it consumes
- * already-measured Knuth-Plass items and returns the chosen breakpoints. The
- * production editor still uses the greedy layouter in v12 H2; later steps will
- * add paragraph tokenization and line materialization on top of this scorer.</p>
+ * already-measured Knuth-Plass items and returns chosen breakpoints.</p>
  */
 public final class KnuthPlassLineBreaker {
     private static final double EPSILON = 1e-9;

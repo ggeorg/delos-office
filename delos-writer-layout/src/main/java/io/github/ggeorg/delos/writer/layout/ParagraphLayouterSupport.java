@@ -13,11 +13,10 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * Shared helpers for paragraph layouters.
+ * Shared helpers for paragraph line breakers.
  *
- * <p>v52 keeps the same logical character model but removes the old
- * one-record-per-character flattening allocation. Layouters now work against a
- * compact styled character view: one backing text buffer plus style spans.</p>
+ * <p>Helpers in this class turn rich paragraph runs into style-aware character
+ * streams and measured line runs.</p>
  */
 final class ParagraphLayouterSupport {
     private final TextMeasurer measurer;

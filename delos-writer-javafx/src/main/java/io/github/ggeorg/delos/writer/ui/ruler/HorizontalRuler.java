@@ -11,7 +11,7 @@ import java.util.Objects;
 /**
  * Visual horizontal page ruler for the writer workspace.
  *
- * <p>The ruler is read-only in v1. It mirrors the document viewport's zoom,
+ * <p>The ruler is currently read-only. It mirrors the document viewport's zoom,
  * horizontal scroll, page width, and left/right margins. Interaction such as
  * dragging margins, indents, and tab stops belongs to later document-model and
  * native-format phases.</p>

@@ -204,6 +204,9 @@ public final class DocumentSerializer {
         paragraphElement.setAttribute("spacing-before", formatDouble(style.spacingBefore()));
         paragraphElement.setAttribute("spacing-after", formatDouble(style.spacingAfter()));
         paragraphElement.setAttribute("line-spacing-multiplier", formatDouble(style.lineSpacingMultiplier()));
+        if (style.languageTag() != null && !ParagraphStyle.DEFAULT_LANGUAGE_TAG.equals(style.languageTag())) {
+            paragraphElement.setAttribute("language", style.languageTag());
+        }
         if (style.listStyle().enabled()) {
             paragraphElement.setAttribute("list-kind", style.listStyle().kind().name());
             paragraphElement.setAttribute("list-level", Integer.toString(style.listStyle().level()));
@@ -340,7 +343,7 @@ public final class DocumentSerializer {
             return parseStoryContainer(storyElements.getFirst());
         }
 
-        // Compatibility with v73-v79 content.xml, where cell block children were
+        // Compatibility with older content.xml files where cell block children were
         // written directly under <cell> instead of inside a nested <story>.
         return parseStoryContainer(cellElement);
     }
@@ -352,7 +355,10 @@ public final class DocumentSerializer {
                 parseRequiredDouble(paragraphElement, "spacing-before"),
                 parseRequiredDouble(paragraphElement, "spacing-after"),
                 parseRequiredDouble(paragraphElement, "line-spacing-multiplier"),
-                parseListStyle(paragraphElement)
+                parseListStyle(paragraphElement),
+                optionalAttribute(paragraphElement, "language") == null
+                        ? ParagraphStyle.DEFAULT_LANGUAGE_TAG
+                        : optionalAttribute(paragraphElement, "language")
         );
 
         List<TextRun> runs = new ArrayList<>();

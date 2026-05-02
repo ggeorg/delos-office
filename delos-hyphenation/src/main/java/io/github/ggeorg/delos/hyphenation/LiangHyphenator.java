@@ -8,13 +8,13 @@ import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.TreeSet;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
 
 /**
@@ -35,9 +35,12 @@ public final class LiangHyphenator implements Hyphenator {
             "/io/github/ggeorg/delos/hyphenation/patterns/";
     private static final String ENGLISH_PATTERNS_RESOURCE = HYPHENATION_RESOURCE_ROOT + "en-US.tex";
 
+    private static final int DEFAULT_MAX_CACHED_WORDS = 20_000;
+    private static final int MAX_CACHEABLE_WORD_LENGTH = 80;
+
     private final PatternTrie trie;
     private final HyphenationPolicy policy;
-    private final Map<String, List<Integer>> cache = new ConcurrentHashMap<>();
+    private final HyphenationCache cache;
 
     public LiangHyphenator(List<String> patternLines, int leftMin, int rightMin) {
         this(patternLines, new HyphenationPolicy(
@@ -52,13 +55,21 @@ public final class LiangHyphenator implements Hyphenator {
     }
 
     public LiangHyphenator(List<String> patternLines, HyphenationPolicy policy) {
-        this.trie = PatternTrie.compile(patternLines);
-        this.policy = Objects.requireNonNull(policy, "policy");
+        this(patternLines, policy, DEFAULT_MAX_CACHED_WORDS);
+    }
+
+    LiangHyphenator(List<String> patternLines, HyphenationPolicy policy, int maxCachedWords) {
+        this(PatternTrie.compile(patternLines), policy, maxCachedWords);
     }
 
     private LiangHyphenator(PatternTrie trie, HyphenationPolicy policy) {
+        this(trie, policy, DEFAULT_MAX_CACHED_WORDS);
+    }
+
+    private LiangHyphenator(PatternTrie trie, HyphenationPolicy policy, int maxCachedWords) {
         this.trie = Objects.requireNonNull(trie, "trie");
         this.policy = Objects.requireNonNull(policy, "policy");
+        this.cache = new HyphenationCache(maxCachedWords);
     }
 
     public static LiangHyphenator english() {
@@ -134,7 +145,34 @@ public final class LiangHyphenator implements Hyphenator {
         if (word == null || word.isEmpty()) {
             return List.of();
         }
-        return cache.computeIfAbsent(word, this::computeHyphenationPoints);
+        if (!isCacheable(word)) {
+            return computeHyphenationPoints(word);
+        }
+        List<Integer> cached = cache.get(word);
+        if (cached != null) {
+            return cached;
+        }
+        return cache.putIfAbsent(word, computeHyphenationPoints(word));
+    }
+
+    int cachedWordCount() {
+        return cache.size();
+    }
+
+    boolean hasCachedWord(String word) {
+        return cache.contains(word);
+    }
+
+    private boolean isCacheable(String sourceWord) {
+        if (sourceWord.length() > MAX_CACHEABLE_WORD_LENGTH) {
+            return false;
+        }
+        VisibleWord visibleWord = VisibleWord.from(sourceWord);
+        String visible = visibleWord.text();
+        if (visible.length() < policy.minWordLength() || visible.length() > MAX_CACHEABLE_WORD_LENGTH) {
+            return false;
+        }
+        return policy.allowsAutomaticHyphenation(visible);
     }
 
     private List<Integer> computeHyphenationPoints(String sourceWord) {
@@ -173,6 +211,47 @@ public final class LiangHyphenator implements Hyphenator {
             return "en-US";
         }
         return normalizedLanguageTag;
+    }
+
+    private static final class HyphenationCache {
+        private final int maxEntries;
+        private final LinkedHashMap<String, List<Integer>> entries;
+
+        HyphenationCache(int maxEntries) {
+            this.maxEntries = Math.max(0, maxEntries);
+            this.entries = new LinkedHashMap<>(16, 0.75f, true) {
+                @Override
+                protected boolean removeEldestEntry(Map.Entry<String, List<Integer>> eldest) {
+                    return HyphenationCache.this.maxEntries > 0
+                            && size() > HyphenationCache.this.maxEntries;
+                }
+            };
+        }
+
+        synchronized List<Integer> get(String word) {
+            return entries.get(word);
+        }
+
+        synchronized List<Integer> putIfAbsent(String word, List<Integer> points) {
+            if (maxEntries == 0) {
+                return List.copyOf(points);
+            }
+            List<Integer> existing = entries.get(word);
+            if (existing != null) {
+                return existing;
+            }
+            List<Integer> computed = List.copyOf(points);
+            entries.put(word, computed);
+            return computed;
+        }
+
+        synchronized int size() {
+            return entries.size();
+        }
+
+        synchronized boolean contains(String word) {
+            return entries.containsKey(word);
+        }
     }
 
     private static final class PatternFile {

@@ -68,4 +68,14 @@ class ParagraphStyleContractTest {
         assertEquals("abc", edit.document().paragraphs().get(0).plainText());
         assertEquals("def", edit.document().paragraphs().get(1).plainText());
     }
+
+
+    @Test
+    void paragraphStyleCarriesNormalizedLanguageTag() {
+        ParagraphStyle style = ParagraphStyle.defaultBody().withLanguageTag("el_gr");
+
+        assertEquals("el-GR", style.languageTag());
+        assertEquals("en-US", ParagraphStyle.defaultBody().languageTag());
+        assertEquals(null, style.withoutLanguageTag().languageTag());
+    }
 }

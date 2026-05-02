@@ -1,8 +1,8 @@
 package io.github.ggeorg.delos.writer.layout;
 
-import io.github.ggeorg.delos.hyphenation.DefaultHyphenators;
 import io.github.ggeorg.delos.hyphenation.HyphenationPolicy;
 import io.github.ggeorg.delos.hyphenation.Hyphenator;
+import io.github.ggeorg.delos.hyphenation.HyphenatorProvider;
 import io.github.ggeorg.delos.writer.document.Alignment;
 import io.github.ggeorg.delos.writer.document.CharacterStyle;
 import io.github.ggeorg.delos.writer.layout.ParagraphLayouterSupport.StyledText;
@@ -12,39 +12,26 @@ import io.github.ggeorg.delos.render.RenderFont;
 import io.github.ggeorg.delos.render.TextLayoutResult;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 /**
- * Experimental paragraph layouter backed by {@link KnuthPlassLineBreaker}.
+ * Paragraph layouter backed by {@link KnuthPlassLineBreaker}.
  *
- * <p>v12 H3 wires the already-measured Knuth-Plass items into the real Delos
- * line pipeline: paragraphs are tokenized into boxes/glue/penalties, the
- * breakpoint search chooses visual line ends, and the chosen ranges are
- * materialized back into {@link LaidOutLine} instances with stable runs and
- * caret stops. Greedy remains the production default; this strategy exists so
- * typography work can advance without destabilizing pagination.</p>
- *
- * <p>v12 H4 teaches the experimental layouter to honor {@link Alignment#JUSTIFY}
- * on non-terminal visual lines by distributing the line breaker's adjustment
- * ratio through measured glue fragments instead of treating justify like a
- * plain left-aligned line.</p>
- *
- * <p>v13 H5 hardens paragraph-level justify behavior around mixed styling,
- * explicit newline segment boundaries, and lines that have no visible glue to
- * distribute.</p>
- *
- * <p>v117.14 makes this the general paragraph line breaker for all alignments.
- * Hyphenation is no longer hidden behind {@link Alignment#JUSTIFY}; left,
- * center, right, and justified paragraphs all get the same discretionary
- * hyphen opportunities, while justification remains only a spacing decision.</p>
+ * <p>Paragraphs are tokenized into boxes, glue, and penalties. The breakpoint
+ * search chooses visual line ends, and the chosen ranges are materialized back
+ * into {@link LaidOutLine} instances with stable runs and caret stops. Automatic
+ * hyphenation is controlled by the paragraph language tag; justification remains
+ * only a spacing decision.</p>
  */
 public final class KnuthPlassParagraphLayouter implements ParagraphLayouter {
     private static final double EPSILON = 1e-9;
 
     private final TextMeasurer measurer;
     private final KnuthPlassLineBreaker lineBreaker;
-    private final Hyphenator hyphenator;
+    private final HyphenatorProvider hyphenators;
     private final HyphenationPolicy hyphenationPolicy;
     private final ParagraphLayouterSupport support;
 
@@ -53,15 +40,15 @@ public final class KnuthPlassParagraphLayouter implements ParagraphLayouter {
     }
 
     public KnuthPlassParagraphLayouter(TextMeasurer measurer) {
-        this(measurer, new KnuthPlassLineBreaker(), DefaultHyphenators.english());
+        this(measurer, new KnuthPlassLineBreaker(), HyphenatorProvider.defaults());
     }
 
     public KnuthPlassParagraphLayouter(TextMeasurer measurer, KnuthPlassLineBreaker lineBreaker) {
-        this(measurer, lineBreaker, DefaultHyphenators.english());
+        this(measurer, lineBreaker, HyphenatorProvider.defaults());
     }
 
     public KnuthPlassParagraphLayouter(TextMeasurer measurer, KnuthPlassLineBreaker lineBreaker, Hyphenator hyphenator) {
-        this(measurer, lineBreaker, hyphenator, HyphenationPolicy.english());
+        this(measurer, lineBreaker, HyphenatorProvider.fixed(hyphenator), HyphenationPolicy.english());
     }
 
     public KnuthPlassParagraphLayouter(
@@ -70,10 +57,27 @@ public final class KnuthPlassParagraphLayouter implements ParagraphLayouter {
             Hyphenator hyphenator,
             HyphenationPolicy hyphenationPolicy
     ) {
+        this(measurer, lineBreaker, HyphenatorProvider.fixed(hyphenator), hyphenationPolicy);
+    }
+
+    public KnuthPlassParagraphLayouter(
+            TextMeasurer measurer,
+            KnuthPlassLineBreaker lineBreaker,
+            HyphenatorProvider hyphenators
+    ) {
+        this(measurer, lineBreaker, hyphenators, HyphenationPolicy.english());
+    }
+
+    public KnuthPlassParagraphLayouter(
+            TextMeasurer measurer,
+            KnuthPlassLineBreaker lineBreaker,
+            HyphenatorProvider hyphenators,
+            HyphenationPolicy hyphenationPolicy
+    ) {
         this.measurer = Objects.requireNonNull(measurer, "measurer");
         this.lineBreaker = Objects.requireNonNull(lineBreaker, "lineBreaker");
         this.hyphenationPolicy = Objects.requireNonNull(hyphenationPolicy, "hyphenationPolicy");
-        this.hyphenator = Objects.requireNonNullElse(hyphenator, Hyphenator.NONE);
+        this.hyphenators = Objects.requireNonNullElse(hyphenators, HyphenatorProvider.fixed(Hyphenator.NONE));
         this.support = new ParagraphLayouterSupport(this.measurer);
     }
 
@@ -83,8 +87,10 @@ public final class KnuthPlassParagraphLayouter implements ParagraphLayouter {
         Objects.requireNonNull(baseFont, "baseFont");
 
         StyledText chars = support.styledText(paragraph);
+        RunMeasurementCache measurements = new RunMeasurementCache(measurer);
         List<LaidOutLine> lines = new ArrayList<>();
         ParagraphStyle style = paragraph.style();
+        Hyphenator paragraphHyphenator = hyphenators.forLanguageTag(style.languageTag());
 
         if (chars.isEmpty()) {
             lines.add(support.emptyLine(baseFont, 0, 0, Math.max(0, style.firstLineIndent())));
@@ -110,7 +116,15 @@ public final class KnuthPlassParagraphLayouter implements ParagraphLayouter {
             }
 
             double availableWidth = Math.max(1, maxWidth - firstLineIndent);
-            List<KnuthPlassTypes.Item> items = tokenizeSegment(chars, sourceIndex, segmentEndExclusive, baseFont, availableWidth);
+            List<KnuthPlassTypes.Item> items = tokenizeSegment(
+                    chars,
+                    sourceIndex,
+                    segmentEndExclusive,
+                    baseFont,
+                    availableWidth,
+                    paragraphHyphenator,
+                    measurements
+            );
             List<KnuthPlassTypes.Breakpoint> breakpoints = paragraphStyleUsesJustification(style)
                     ? lineBreaker.computeBreakpoints(items, availableWidth)
                     : computeRaggedBreakpoints(items, maxWidth, firstLineIndent);
@@ -132,7 +146,8 @@ public final class KnuthPlassParagraphLayouter implements ParagraphLayouter {
                         firstVisualLine,
                         lastLineInSegment,
                         maxWidth,
-                        style
+                        style,
+                        measurements
                 ));
                 y += support.lineAdvance(baseFont, style, lineGap);
                 firstVisualLine = false;
@@ -215,7 +230,15 @@ public final class KnuthPlassParagraphLayouter implements ParagraphLayouter {
         return width;
     }
 
-    private List<KnuthPlassTypes.Item> tokenizeSegment(StyledText chars, int startInclusive, int endExclusive, RenderFont baseFont, double availableWidth) {
+    private List<KnuthPlassTypes.Item> tokenizeSegment(
+            StyledText chars,
+            int startInclusive,
+            int endExclusive,
+            RenderFont baseFont,
+            double availableWidth,
+            Hyphenator paragraphHyphenator,
+            RunMeasurementCache measurements
+    ) {
         List<KnuthPlassTypes.Item> items = new ArrayList<>();
         int i = startInclusive;
         while (i < endExclusive) {
@@ -239,12 +262,12 @@ public final class KnuthPlassParagraphLayouter implements ParagraphLayouter {
             int endOffset = chars.offset(j - 1) + 1;
 
             if (whitespace) {
-                double width = measurer.textWidth(text, font);
+                double width = measurements.width(text, font);
                 double stretch = Math.max(1.0, width * 0.5);
                 double shrink = Math.max(0.5, width / 3.0);
                 items.add(new KnuthPlassTypes.Glue(text, style, startOffset, endOffset, width, stretch, shrink));
             } else {
-                appendHyphenatedBoxes(items, text, style, startOffset, font, availableWidth);
+                appendHyphenatedBoxes(items, text, style, startOffset, font, availableWidth, paragraphHyphenator, measurements);
             }
             i = j;
         }
@@ -260,7 +283,9 @@ public final class KnuthPlassParagraphLayouter implements ParagraphLayouter {
             CharacterStyle style,
             int sourceStartOffset,
             RenderFont font,
-            double availableWidth
+            double availableWidth,
+            Hyphenator paragraphHyphenator,
+            RunMeasurementCache measurements
     ) {
         VisibleWord visibleWord = toVisibleWord(sourceText, sourceStartOffset);
         String visibleText = visibleWord.text();
@@ -268,8 +293,9 @@ public final class KnuthPlassParagraphLayouter implements ParagraphLayouter {
             return;
         }
 
-        double visibleWidth = measurer.textWidth(visibleText, font);
-        List<Integer> breakpoints = hyphenator.hyphenationPoints(sourceText);
+        double visibleWidth = measurements.width(visibleText, font);
+        Hyphenator activeHyphenator = paragraphHyphenator == null ? Hyphenator.NONE : paragraphHyphenator;
+        List<Integer> breakpoints = activeHyphenator.hyphenationPoints(sourceText);
         if (breakpoints.isEmpty()) {
             items.add(new KnuthPlassTypes.Box(
                     visibleText,
@@ -282,7 +308,7 @@ public final class KnuthPlassParagraphLayouter implements ParagraphLayouter {
         }
 
         var explicitBreakpoints = explicitSoftHyphenBreakpoints(sourceText);
-        double hyphenWidth = measurer.textWidth("-", font);
+        double hyphenWidth = measurements.width("-", font);
         int previousVisible = 0;
         for (int breakpoint : breakpoints) {
             int clamped = Math.max(previousVisible + 1, Math.min(breakpoint, visibleText.length() - 1));
@@ -296,7 +322,7 @@ public final class KnuthPlassParagraphLayouter implements ParagraphLayouter {
                         style,
                         visibleWord.sourceOffsetAt(previousVisible),
                         visibleWord.sourceOffsetAt(clamped),
-                        measurer.textWidth(segment, font)
+                        measurements.width(segment, font)
                 ));
                 boolean explicitBreak = explicitBreakpoints.contains(clamped);
                 int penalty = hyphenationPolicy.penaltyFor(visibleText, explicitBreak);
@@ -312,7 +338,7 @@ public final class KnuthPlassParagraphLayouter implements ParagraphLayouter {
                     style,
                     visibleWord.sourceOffsetAt(previousVisible),
                     visibleWord.sourceOffsetAt(visibleText.length()),
-                    measurer.textWidth(tail, font)
+                    measurements.width(tail, font)
             ));
         }
     }
@@ -364,7 +390,8 @@ public final class KnuthPlassParagraphLayouter implements ParagraphLayouter {
             boolean firstVisualLine,
             boolean lastLineInSegment,
             double maxWidth,
-            ParagraphStyle paragraphStyle
+            ParagraphStyle paragraphStyle,
+            RunMeasurementCache measurements
     ) {
         double firstLineIndent = firstVisualLine ? Math.max(0, paragraphStyle.firstLineIndent()) : 0;
         List<RunFragment> fragments = collectFragments(items, previousBreakIndex, breakpoint.itemIndex());
@@ -391,7 +418,7 @@ public final class KnuthPlassParagraphLayouter implements ParagraphLayouter {
 
         for (RunFragment fragment : fragments) {
             RenderFont runFont = measurer.styledFont(baseFont, fragment.style().bold(), fragment.style().italic());
-            TextLayoutResult baseLayout = measurer.layoutText(fragment.text(), runFont);
+            TextLayoutResult baseLayout = measurements.layout(fragment.text(), runFont);
             List<Double> baseStops = baseLayout.caretStops();
             double baseWidth = baseLayout.width();
             double runWidth = adjustedFragmentWidth(fragment, breakpoint.adjustmentRatio(), justifyLine, baseWidth, justificationPlan);
@@ -614,6 +641,33 @@ public final class KnuthPlassParagraphLayouter implements ParagraphLayouter {
         return 0;
     }
 
+
+
+    private static final class RunMeasurementCache {
+        private final TextMeasurer measurer;
+        private final Map<MeasurementKey, TextLayoutResult> layouts = new HashMap<>();
+
+        private RunMeasurementCache(TextMeasurer measurer) {
+            this.measurer = Objects.requireNonNull(measurer, "measurer");
+        }
+
+        private TextLayoutResult layout(String text, RenderFont font) {
+            String safeText = text == null ? "" : text;
+            MeasurementKey key = new MeasurementKey(safeText, font);
+            return layouts.computeIfAbsent(key, ignored -> measurer.layoutText(safeText, font));
+        }
+
+        private double width(String text, RenderFont font) {
+            return layout(text, font).width();
+        }
+    }
+
+    private record MeasurementKey(String text, RenderFont font) {
+        private MeasurementKey {
+            text = text == null ? "" : text;
+            font = Objects.requireNonNull(font, "font");
+        }
+    }
 
     private record VisibleWord(String text, List<Integer> sourceOffsets) {
         private int sourceOffsetAt(int visibleIndex) {
