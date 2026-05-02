@@ -1,0 +1,192 @@
+.delos-menu-bar {
+    -fx-background-color: derive(-fx-base, 4%);
+}
+
+.delos-toolbar {
+    -fx-background-color: linear-gradient(to bottom, derive(-fx-base, 9%), derive(-fx-base, 2%));
+    -fx-border-color: transparent transparent derive(-fx-base, -18%) transparent;
+    -fx-border-width: 0 0 1 0;
+    -fx-spacing: 6;
+}
+
+.delos-toolbar-button {
+    -fx-min-height: 28px;
+    -fx-pref-height: 28px;
+    -fx-padding: 4 8 4 8;
+}
+
+.delos-toolbar-button .delos-icon {
+    -fx-icon-color: -fx-text-base-color;
+}
+
+.delos-toolbar-separator {
+    -fx-padding: 0 3 0 3;
+}
+
+.delos-status-line {
+    -fx-background-color: derive(-fx-base, 3%);
+    -fx-border-color: derive(-fx-base, -16%) transparent transparent transparent;
+    -fx-border-width: 1 0 0 0;
+    -fx-min-height: 26px;
+    -fx-pref-height: 26px;
+}
+
+.delos-status-item,
+.status-label {
+    -fx-font-size: 12px;
+    -fx-text-fill: derive(-fx-text-base-color, -10%);
+}
+
+.delos-icon {
+    -fx-icon-color: -fx-text-base-color;
+}
+
+.delos-inspector {
+    -fx-background-color: #f4f8fc;
+    -fx-border-color: #cbd5e1;
+    -fx-border-width: 0 0 0 1;
+}
+
+.delos-inspector-tabs {
+    -fx-background-color: #f4f8fc;
+    -fx-spacing: 6;
+}
+
+.delos-inspector-tab {
+    -fx-background-color: transparent;
+    -fx-background-radius: 8;
+    -fx-border-color: transparent;
+    -fx-padding: 6 8;
+    -fx-font-size: 13px;
+    -fx-text-fill: #334155;
+}
+
+.delos-inspector-tab:hover {
+    -fx-background-color: #e2e8f0;
+}
+
+.delos-inspector-tab:selected {
+    -fx-background-color: #dbeafe;
+    -fx-text-fill: #1d4ed8;
+}
+
+.delos-inspector-scroll {
+    -fx-background-color: transparent;
+    -fx-background: transparent;
+}
+
+.delos-inspector-scroll > .viewport {
+    -fx-background-color: transparent;
+}
+
+/* Inspector panels should scroll with mouse wheel/trackpad, but should not show
+   their own scrollbar. The document editor scrollbar is the only prominent
+   vertical scrollbar in Writer. */
+.delos-inspector-scroll .scroll-bar:vertical {
+    -fx-min-width: 0;
+    -fx-pref-width: 0;
+    -fx-max-width: 0;
+    -fx-padding: 0;
+    -fx-opacity: 0;
+}
+
+.delos-inspector-scroll .scroll-bar:horizontal {
+    -fx-min-height: 0;
+    -fx-pref-height: 0;
+    -fx-max-height: 0;
+    -fx-padding: 0;
+    -fx-opacity: 0;
+}
+
+.delos-inspector-scroll .scroll-bar .track,
+.delos-inspector-scroll .scroll-bar .thumb,
+.delos-inspector-scroll .scroll-bar .increment-button,
+.delos-inspector-scroll .scroll-bar .decrement-button {
+    -fx-background-color: transparent;
+    -fx-background-insets: 0;
+    -fx-padding: 0;
+}
+
+.delos-inspector-content-host {
+    -fx-background-color: transparent;
+}
+
+.delos-inspector-section {
+    -fx-border-color: #e2e8f0;
+    -fx-border-width: 0 0 1 0;
+}
+
+.delos-inspector-section-title {
+    -fx-font-size: 13px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #334155;
+    -fx-padding: 0 0 2 0;
+}
+
+.delos-inspector-form-row {
+    -fx-alignment: center-left;
+}
+
+.delos-inspector-form-label {
+    -fx-font-size: 12px;
+    -fx-text-fill: #475569;
+}
+
+.delos-inspector-value-label {
+    -fx-font-size: 13px;
+    -fx-text-fill: #1e293b;
+}
+
+.delos-inspector-empty-text {
+    -fx-font-size: 12px;
+    -fx-text-fill: #475569;
+    -fx-wrap-text: true;
+}
+
+.delos-inspector-combo {
+    -fx-font-size: 13px;
+}
+
+.delos-inspector-command-strip {
+    -fx-alignment: center-left;
+}
+
+.delos-inspector-command-button {
+    -fx-background-color: #ffffff;
+    -fx-background-radius: 7;
+    -fx-border-color: #cbd5e1;
+    -fx-border-radius: 7;
+    -fx-min-height: 32px;
+    -fx-pref-height: 32px;
+    -fx-padding: 6 9;
+    -fx-text-fill: #1e293b;
+}
+
+.delos-inspector-command-button:hover {
+    -fx-background-color: #f1f5f9;
+}
+
+.delos-inspector-command-button:selected {
+    -fx-background-color: #dbeafe;
+    -fx-border-color: #93c5fd;
+    -fx-text-fill: #1d4ed8;
+}
+
+.delos-inspector-command-button:disabled {
+    -fx-opacity: 0.68;
+}
+
+.delos-inspector .text-input,
+.delos-inspector .combo-box-base,
+.delos-inspector .button,
+.delos-inspector .toggle-button {
+    -fx-font-size: 13px;
+}
+
+.delos-inspector .text-input:disabled,
+.delos-inspector .combo-box-base:disabled,
+.delos-inspector .button:disabled,
+.delos-inspector .toggle-button:disabled,
+.delos-inspector .check-box:disabled {
+    -fx-opacity: 0.68;
+}

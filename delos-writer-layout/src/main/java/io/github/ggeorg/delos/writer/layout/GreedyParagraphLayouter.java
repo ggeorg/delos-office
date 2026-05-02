@@ -1,0 +1,189 @@
+package io.github.ggeorg.delos.writer.layout;
+
+import io.github.ggeorg.delos.render.RenderFont;
+import io.github.ggeorg.delos.render.TextLayoutResult;
+import io.github.ggeorg.delos.writer.document.CharacterStyle;
+import io.github.ggeorg.delos.writer.document.Paragraph;
+import io.github.ggeorg.delos.writer.document.ParagraphStyle;
+import io.github.ggeorg.delos.writer.layout.ParagraphLayouterSupport.StyledText;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+
+/**
+ * Baseline paragraph layout strategy for Delos.
+ *
+ * <p>This implementation performs greedy line breaking, preserves explicit line
+ * breaks, and keeps logical character offsets stable for caret and selection
+ * mapping. It is the stable reference implementation used while v12 introduces
+ * richer typography strategies such as Knuth-Plass.</p>
+ */
+public final class GreedyParagraphLayouter implements ParagraphLayouter {
+    private final TextMeasurer measurer;
+    private final ParagraphLayouterSupport support;
+
+    public GreedyParagraphLayouter() {
+        this(new ApproximateTextMeasurer());
+    }
+
+    public GreedyParagraphLayouter(TextMeasurer measurer) {
+        this.measurer = Objects.requireNonNull(measurer, "measurer");
+        this.support = new ParagraphLayouterSupport(this.measurer);
+    }
+
+    @Override
+    public List<LaidOutLine> layoutLines(Paragraph paragraph, RenderFont baseFont, double maxWidth, double lineGap) {
+        StyledText chars = support.styledText(paragraph);
+        List<LaidOutLine> lines = new ArrayList<>();
+        ParagraphStyle style = paragraph.style();
+
+        if (chars.isEmpty()) {
+            lines.add(support.emptyLine(baseFont, 0, 0, Math.max(0, style.firstLineIndent())));
+            return lines;
+        }
+
+        double y = 0;
+        int sourceIndex = 0;
+        boolean firstVisualLine = true;
+
+        while (sourceIndex < chars.size()) {
+            double firstLineIndent = firstVisualLine ? Math.max(0, style.firstLineIndent()) : 0;
+            double availableWidth = Math.max(1, maxWidth - firstLineIndent);
+            if (chars.ch(sourceIndex) == '\n') {
+                lines.add(support.emptyLine(baseFont, chars.offset(sourceIndex), y, firstLineIndent));
+                y += support.lineAdvance(baseFont, style, lineGap);
+                sourceIndex++;
+                firstVisualLine = false;
+                continue;
+            }
+
+            int lineStart = sourceIndex;
+            int i = sourceIndex;
+            int lastBreakSourceIndex = -1;
+            double width = 0;
+            double widthBeforeActiveRun = 0;
+            int activeRunStart = sourceIndex;
+            CharacterStyle activeStyle = null;
+            RenderFont activeFont = null;
+
+            while (i < chars.size() && chars.ch(i) != '\n') {
+                CharacterStyle charStyle = chars.style(i);
+                if (activeStyle == null || !activeStyle.sameAs(charStyle)) {
+                    activeStyle = charStyle;
+                    activeFont = measurer.styledFont(baseFont, charStyle.bold(), charStyle.italic());
+                    widthBeforeActiveRun = width;
+                    activeRunStart = i;
+                }
+                char ch = chars.ch(i);
+                double candidateWidth = widthBeforeActiveRun
+                        + measurer.textWidth(chars.text(activeRunStart, i + 1), activeFont);
+                if (candidateWidth <= availableWidth || i == sourceIndex) {
+                    width = candidateWidth;
+                    if (Character.isWhitespace(ch)) {
+                        lastBreakSourceIndex = i + 1;
+                    }
+                    i++;
+                } else {
+                    break;
+                }
+            }
+
+            int lineEndExclusive;
+            if (i < chars.size() && chars.ch(i) == '\n') {
+                lineEndExclusive = i;
+                sourceIndex = i + 1;
+            } else if (i >= chars.size()) {
+                lineEndExclusive = i;
+                sourceIndex = i;
+            } else if (lastBreakSourceIndex > lineStart) {
+                lineEndExclusive = lastBreakSourceIndex;
+                sourceIndex = lastBreakSourceIndex;
+            } else {
+                lineEndExclusive = i;
+                sourceIndex = i;
+            }
+
+            lines.add(materializeLine(chars, lineStart, lineEndExclusive, baseFont, y, firstVisualLine, maxWidth, style));
+            y += support.lineAdvance(baseFont, style, lineGap);
+            firstVisualLine = false;
+        }
+
+        return lines;
+    }
+
+    private LaidOutLine materializeLine(
+            StyledText chars,
+            int startInclusive,
+            int endExclusive,
+            RenderFont baseFont,
+            double y,
+            boolean firstVisualLine,
+            double maxWidth,
+            ParagraphStyle paragraphStyle
+    ) {
+        double firstLineIndent = firstVisualLine ? Math.max(0, paragraphStyle.firstLineIndent()) : 0;
+        if (startInclusive >= endExclusive) {
+            int offset = startInclusive < chars.size() ? chars.offset(startInclusive) : 0;
+            return support.emptyLine(baseFont, offset, y, firstLineIndent);
+        }
+
+        StringBuilder lineText = new StringBuilder();
+        List<Double> relativeCaretStops = new ArrayList<>();
+        List<LaidOutRun> runs = new ArrayList<>();
+        relativeCaretStops.add(0.0);
+
+        double relativeX = 0;
+        int lineColumn = 0;
+        int runStart = startInclusive;
+        while (runStart < endExclusive) {
+            CharacterStyle runStyle = chars.style(runStart);
+            int runEnd = runStart + 1;
+            while (runEnd < endExclusive && runStyle.sameAs(chars.style(runEnd))) {
+                runEnd++;
+            }
+
+            String runText = chars.text(runStart, runEnd);
+            RenderFont runFont = measurer.styledFont(baseFont, runStyle.bold(), runStyle.italic());
+            TextLayoutResult runLayout = measurer.layoutText(runText, runFont);
+            List<Double> runStops = runLayout.caretStops();
+            double runWidth = runLayout.width();
+            double runX = relativeX;
+
+            runs.add(new LaidOutRun(
+                    runText,
+                    lineColumn,
+                    lineColumn + runText.length(),
+                    runX,
+                    runWidth,
+                    runStyle
+            ));
+
+            lineText.append(runText);
+            for (int i = 1; i < runStops.size(); i++) {
+                relativeCaretStops.add(runX + runStops.get(i));
+            }
+
+            relativeX += runWidth;
+            lineColumn += runText.length();
+            runStart = runEnd;
+        }
+
+        int startOffset = chars.offset(startInclusive);
+        int endOffset = chars.offset(endExclusive - 1) + 1;
+        double lineX = ParagraphLayouterSupport.alignedX(paragraphStyle.alignment(), firstLineIndent, maxWidth, relativeX);
+        return new LaidOutLine(
+                lineText.toString(),
+                lineX,
+                y,
+                relativeX,
+                measurer.lineHeight(baseFont),
+                measurer.baseline(baseFont),
+                startOffset,
+                endOffset,
+                runs,
+                relativeCaretStops
+        );
+    }
+
+}

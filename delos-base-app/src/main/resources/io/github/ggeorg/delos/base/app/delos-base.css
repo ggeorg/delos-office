@@ -1,0 +1,106 @@
+.root {
+    -fx-font-family: "Inter", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+    -fx-background-color: #eef2f6;
+}
+
+.base-main-window {
+    -fx-background-color: #eef2f6;
+}
+
+.base-top-chrome,
+.base-menu-bar,
+.base-toolbar {
+    -fx-background-color: #f8fafc;
+}
+
+.base-top-chrome {
+    -fx-border-color: #d9e0ea;
+    -fx-border-width: 0 0 1 0;
+}
+
+.base-toolbar {
+    -fx-border-color: #e2e8f0;
+    -fx-border-width: 1 0 0 0;
+    -fx-spacing: 6;
+}
+
+.base-toolbar-button {
+    -fx-background-color: transparent;
+    -fx-background-radius: 6;
+    -fx-border-color: transparent;
+    -fx-padding: 4 8;
+    -fx-text-fill: #334155;
+    -fx-font-size: 12px;
+}
+
+.base-toolbar-button:hover {
+    -fx-background-color: #e8ecf2;
+}
+
+.base-toolbar-button:disabled {
+    -fx-opacity: 0.45;
+}
+
+.base-status-bar {
+    -fx-background-color: #f1f5f9;
+    -fx-border-color: #d9e0ea;
+    -fx-border-width: 1 0 0 0;
+    -fx-pref-height: 24;
+    -fx-max-height: 24;
+    -fx-min-height: 24;
+}
+
+.status-label {
+    -fx-text-fill: #64748b;
+    -fx-font-size: 11px;
+}
+
+.delos-base-view {
+    -fx-background-color: #eef2f6;
+}
+
+.delos-base-sidebar {
+    -fx-background-color: #f8fafc;
+    -fx-border-color: #d9e0ea;
+    -fx-border-width: 0 1 0 0;
+}
+
+.delos-base-section-label {
+    -fx-font-size: 11px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #64748b;
+}
+
+.delos-base-object-list {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+}
+
+.delos-base-object-kind {
+    -fx-background-color: #dbeafe;
+    -fx-background-radius: 4;
+    -fx-padding: 2 6;
+    -fx-text-fill: #1d4ed8;
+    -fx-font-size: 11px;
+    -fx-font-weight: 700;
+}
+
+.delos-base-object-name {
+    -fx-text-fill: #1e293b;
+    -fx-font-size: 13px;
+}
+
+.delos-base-detail {
+    -fx-background-color: #ffffff;
+}
+
+.delos-base-detail-title {
+    -fx-font-size: 24px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #0f172a;
+}
+
+.delos-base-detail-description {
+    -fx-font-size: 13px;
+    -fx-text-fill: #475569;
+}
