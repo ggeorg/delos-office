@@ -17,7 +17,6 @@ import io.github.ggeorg.delos.writer.document.TableRow;
 import io.github.ggeorg.delos.writer.document.TableStyle;
 import io.github.ggeorg.delos.writer.document.TableColumnSpec;
 import io.github.ggeorg.delos.writer.document.TextPosition;
-import io.github.ggeorg.delos.writer.document.TextRun;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -118,7 +117,7 @@ public final class DocumentEditor {
             paragraphs.add(Paragraph.of(""));
         }
 
-        TextPosition safeCaret = clampPosition(paragraphs, caret);
+        TextPosition safeCaret = ParagraphRuns.clampPosition(paragraphs, caret);
         List<Block> updated = new ArrayList<>();
         int paragraphIndex = 0;
         int insertedBlockIndex = -1;
@@ -137,10 +136,10 @@ public final class DocumentEditor {
                     insertedBlockIndex = updated.size();
                     updated.add(block);
                 } else {
-                    updated.add(new ParagraphBlock(new Paragraph(paragraph.style(), prefixRuns(paragraph, offset))));
+                    updated.add(new ParagraphBlock(new Paragraph(paragraph.style(), ParagraphRuns.prefix(paragraph, offset))));
                     insertedBlockIndex = updated.size();
                     updated.add(block);
-                    updated.add(new ParagraphBlock(new Paragraph(paragraph.style(), suffixRuns(paragraph, offset))));
+                    updated.add(new ParagraphBlock(new Paragraph(paragraph.style(), ParagraphRuns.suffix(paragraph, offset))));
                 }
 
                 paragraphIndex += 1;
@@ -442,49 +441,4 @@ public final class DocumentEditor {
         return best;
     }
 
-    private TextPosition clampPosition(List<Paragraph> paragraphs, TextPosition position) {
-        int paragraphIndex = Math.max(0, Math.min(position.paragraphIndex(), paragraphs.size() - 1));
-        int offset = Math.max(0, Math.min(position.offset(), paragraphs.get(paragraphIndex).length()));
-        return new TextPosition(paragraphIndex, offset);
-    }
-
-    private List<TextRun> prefixRuns(Paragraph paragraph, int endOffsetExclusive) {
-        List<TextRun> result = new ArrayList<>();
-        int offset = 0;
-        for (TextRun run : paragraph.runs()) {
-            int runStart = offset;
-            int runEnd = offset + run.text().length();
-            if (endOffsetExclusive <= runStart) {
-                break;
-            }
-            if (endOffsetExclusive >= runEnd) {
-                result.add(run);
-            } else {
-                result.add(run.withText(run.text().substring(0, endOffsetExclusive - runStart)));
-                break;
-            }
-            offset = runEnd;
-        }
-        return result;
-    }
-
-    private List<TextRun> suffixRuns(Paragraph paragraph, int startOffsetInclusive) {
-        List<TextRun> result = new ArrayList<>();
-        int offset = 0;
-        for (TextRun run : paragraph.runs()) {
-            int runStart = offset;
-            int runEnd = offset + run.text().length();
-            if (startOffsetInclusive >= runEnd) {
-                offset = runEnd;
-                continue;
-            }
-            if (startOffsetInclusive <= runStart) {
-                result.add(run);
-            } else {
-                result.add(run.withText(run.text().substring(startOffsetInclusive - runStart)));
-            }
-            offset = runEnd;
-        }
-        return result;
-    }
 }

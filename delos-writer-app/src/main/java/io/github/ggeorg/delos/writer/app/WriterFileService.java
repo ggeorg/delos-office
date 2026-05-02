@@ -3,6 +3,7 @@ package io.github.ggeorg.delos.writer.app;
 import io.github.ggeorg.delos.document.DocumentIo;
 import io.github.ggeorg.delos.document.DocumentPackage;
 import io.github.ggeorg.delos.document.DocumentRegistry;
+import io.github.ggeorg.delos.writer.app.io.WriterFileChoosers;
 import io.github.ggeorg.delos.writer.document.Document;
 import io.github.ggeorg.delos.writer.io.DocumentSerializer;
 import io.github.ggeorg.delos.writer.io.WriterDocumentExtensions;
@@ -89,10 +90,7 @@ final class WriterFileService {
     }
 
     private Path writeLegacyPlainXml(Path target, Document document) throws IOException {
-        Path parent = target.toAbsolutePath().getParent();
-        if (parent != null) {
-            Files.createDirectories(parent);
-        }
+        WriterFileChoosers.ensureParentDirectory(target);
         try (OutputStream outputStream = Files.newOutputStream(target)) {
             legacySerializer.write(document, outputStream);
         }
@@ -103,7 +101,7 @@ final class WriterFileService {
         FileChooser chooser = new FileChooser();
         chooser.setTitle("Open Writer Document");
         chooser.getExtensionFilters().addAll(WRITER_OPEN_FILTER, WRITER_NATIVE_FILTER, WRITER_LEGACY_FILTER, ALL_FILES_FILTER);
-        configureInitialLocation(chooser, initialFile);
+        WriterFileChoosers.configureInitialLocation(chooser, initialFile);
         var file = chooser.showOpenDialog(owner);
         return file == null ? null : file.toPath();
     }
@@ -112,40 +110,16 @@ final class WriterFileService {
         FileChooser chooser = new FileChooser();
         chooser.setTitle("Save Writer Document");
         chooser.getExtensionFilters().add(WRITER_NATIVE_FILTER);
-        configureInitialLocation(chooser, currentFile);
+        WriterFileChoosers.configureInitialLocation(chooser, currentFile);
         chooser.setInitialFileName(suggestedSaveFileName(currentFile, documentTitle));
         var file = chooser.showSaveDialog(owner);
         return file == null ? null : file.toPath();
     }
 
-    private static void configureInitialLocation(FileChooser chooser, Path path) {
-        if (path == null) {
-            return;
-        }
-        Path absolute = path.toAbsolutePath();
-        Path parent = Files.isDirectory(absolute) ? absolute : absolute.getParent();
-        if (parent != null && Files.isDirectory(parent)) {
-            chooser.setInitialDirectory(parent.toFile());
-        }
-    }
-
     static String suggestedSaveFileName(Path currentFile, String documentTitle) {
-        return sanitizeFileName(exportBaseName(currentFile, documentTitle)) + WriterDocumentExtensions.DOCUMENT;
-    }
-
-    private static String exportBaseName(Path currentFile, String documentTitle) {
-        if (currentFile != null) {
-            String filename = currentFile.getFileName().toString();
-            int extensionIndex = filename.lastIndexOf('.');
-            return extensionIndex > 0 ? filename.substring(0, extensionIndex) : filename;
-        }
-        return documentTitle;
-    }
-
-    private static String sanitizeFileName(String value) {
-        String candidate = value == null || value.isBlank() ? "Untitled" : value.trim();
-        candidate = candidate.replaceAll("[\\\\/:*?\"<>|]", "-");
-        return candidate.isBlank() ? "Untitled" : candidate;
+        return WriterFileChoosers.sanitizeFileName(
+                WriterFileChoosers.suggestedBaseName(currentFile, documentTitle)
+        ) + WriterDocumentExtensions.DOCUMENT;
     }
 
     static boolean isNativeWriterPath(Path path) {

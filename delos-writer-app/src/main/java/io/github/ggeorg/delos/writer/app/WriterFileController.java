@@ -1,13 +1,15 @@
 package io.github.ggeorg.delos.writer.app;
 
 import io.github.ggeorg.delos.writer.app.io.DocumentFileService;
+import io.github.ggeorg.delos.writer.app.io.WriterFileChoosers;
 import io.github.ggeorg.delos.writer.document.Document;
 import io.github.ggeorg.delos.writer.pdf.WriterPdfService;
 import io.github.ggeorg.delos.writer.print.PdfPrintOptions;
 import io.github.ggeorg.delos.writer.print.PdfWriterPrintService;
 import io.github.ggeorg.delos.writer.session.EditorSession;
-import io.github.ggeorg.delos.writer.ui.UnsavedChangesCoordinator;
+import io.github.ggeorg.delos.javafx.UnsavedChangesCoordinator;
 import io.github.ggeorg.delos.writer.ui.control.DelosEditor;
+import io.github.ggeorg.delos.writer.ui.control.WriterLayoutSnapshot;
 import javafx.application.Platform;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
@@ -18,7 +20,6 @@ import javafx.stage.Stage;
 
 import java.awt.print.PrinterException;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Objects;
 import java.util.concurrent.ExecutorService;
@@ -157,8 +158,9 @@ final class WriterFileController {
             if (target == null) {
                 return;
             }
-            Path normalizedTarget = normalizeExtension(target, ".pdf");
-            pdfService.export(session.document(), normalizedTarget);
+            Path normalizedTarget = WriterFileChoosers.normalizeExtension(target, ".pdf");
+            WriterLayoutSnapshot snapshot = editor.createLayoutSnapshot();
+            pdfService.exportLayout(snapshot.document(), snapshot.layout(), normalizedTarget);
         } catch (IOException | RuntimeException exception) {
             showError("Export failed", "Delos Writer could not export the current document as PDF.", exception);
         }
@@ -170,13 +172,21 @@ final class WriterFileController {
         }
         refreshChrome.run();
 
-        Document printDocument = session.document();
+        WriterLayoutSnapshot printSnapshot;
+        try {
+            printSnapshot = editor.createLayoutSnapshot();
+        } catch (RuntimeException exception) {
+            finishPrintAttempt();
+            showError("Print failed", "Delos Writer could not prepare the current document for printing.", exception);
+            return;
+        }
+
         PdfPrintOptions options = PdfPrintOptions.defaultOptions()
                 .withJobName(displayName());
 
         PRINT_EXECUTOR.execute(() -> {
             try {
-                printService.print(printDocument, options);
+                printService.print(printSnapshot.document(), printSnapshot.layout(), options);
             } catch (IOException | RuntimeException | PrinterException exception) {
                 Platform.runLater(() -> showError(
                         "Print failed",
@@ -226,8 +236,11 @@ final class WriterFileController {
         FileChooser chooser = new FileChooser();
         chooser.setTitle("Export PDF");
         chooser.getExtensionFilters().add(PDF_FILTER);
-        configureInitialLocation(chooser, currentFile);
-        chooser.setInitialFileName(toDisplayFileName(sanitizeFileName(exportBaseName()), ".pdf"));
+        WriterFileChoosers.configureInitialLocation(chooser, currentFile);
+        String candidateName = WriterFileChoosers.sanitizeFileName(
+                WriterFileChoosers.suggestedBaseName(currentFile, session.document().title())
+        );
+        chooser.setInitialFileName(WriterFileChoosers.stripExtensionForDisplay(candidateName, ".pdf"));
         var file = chooser.showSaveDialog(stage);
         return file == null ? null : file.toPath();
     }
@@ -268,43 +281,6 @@ final class WriterFileController {
         alert.setHeaderText(header);
         alert.setContentText(exception.getMessage());
         alert.showAndWait();
-    }
-
-    private String exportBaseName() {
-        if (currentFile != null) {
-            String filename = currentFile.getFileName().toString();
-            int extensionIndex = filename.lastIndexOf('.');
-            return extensionIndex > 0 ? filename.substring(0, extensionIndex) : filename;
-        }
-        return session.document().title();
-    }
-
-    private static void configureInitialLocation(FileChooser chooser, Path path) {
-        if (path == null) {
-            return;
-        }
-        Path absolute = path.toAbsolutePath();
-        Path parent = Files.isDirectory(absolute) ? absolute : absolute.getParent();
-        if (parent != null && Files.isDirectory(parent)) {
-            chooser.setInitialDirectory(parent.toFile());
-        }
-    }
-
-    private static String toDisplayFileName(String candidateName, String extension) {
-        return candidateName.endsWith(extension)
-                ? candidateName.substring(0, candidateName.length() - extension.length())
-                : candidateName;
-    }
-
-    private static Path normalizeExtension(Path path, String extension) {
-        String filename = path.getFileName().toString();
-        return filename.endsWith(extension) ? path : path.resolveSibling(filename + extension);
-    }
-
-    private static String sanitizeFileName(String value) {
-        String candidate = value == null || value.isBlank() ? "Untitled" : value.trim();
-        candidate = candidate.replaceAll("[\\\\/:*?\"<>|]", "-");
-        return candidate.isBlank() ? "Untitled" : candidate;
     }
 
     private static String normalizeTitle(String newTitle, String fallback) {

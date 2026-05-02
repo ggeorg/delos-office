@@ -11,14 +11,16 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 final class WriterJavaFxModuleExportsContractTest {
     @Test
-    void writerJavaFxExportsOnlyTheTemporaryWriterUiSurface() throws IOException {
+    void writerJavaFxExportsOnlyReusableWriterControlApi() throws IOException {
         String moduleInfo = Files.readString(Path.of("src/main/java/module-info.java"));
 
         assertFalse(moduleInfo.contains("exports io.github.ggeorg.delos.writer.render;"),
                 "neutral render package should not be exported from writer-javafx");
         assertFalse(moduleInfo.contains("exports io.github.ggeorg.delos.writer.render.fx;"),
                 "JavaFX render adapter package should stay internal to writer-javafx");
+        assertFalse(moduleInfo.contains("exports io.github.ggeorg.delos.writer.ui.ruler;"),
+                "ruler controls are implementation details of WriterDocumentView");
         assertTrue(moduleInfo.contains("exports io.github.ggeorg.delos.writer.ui.control;"),
-                "DelosEditor remains the public control entry point");
+                "WriterDocumentView and preview policy are the public reusable control entry points");
     }
 }

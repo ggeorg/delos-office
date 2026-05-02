@@ -235,7 +235,7 @@ public final class DocumentPositionNavigator {
         LineAddress target = lines.get(targetIndex);
         double targetLocalX = preferredPageX - target.block().x() - target.line().x();
         int column = target.line().nearestColumn(targetLocalX);
-        return new TextPosition(target.block().sourceParagraphIndex(), target.line().startOffset() + column);
+        return new TextPosition(target.block().sourceParagraphIndex(), target.line().offsetForColumn(column));
     }
 
     public TextPosition movePage(LaidOutDocument document, TextPosition current, int direction, double preferredPageX) {
@@ -268,7 +268,7 @@ public final class DocumentPositionNavigator {
 
         double targetLocalX = preferredPageX - best.block().x() - best.line().x();
         int column = best.line().nearestColumn(targetLocalX);
-        return new TextPosition(best.block().sourceParagraphIndex(), best.line().startOffset() + column);
+        return new TextPosition(best.block().sourceParagraphIndex(), best.line().offsetForColumn(column));
     }
 
     private Integer paragraphEndOffset(LaidOutDocument document, int paragraphIndex) {
@@ -311,7 +311,7 @@ public final class DocumentPositionNavigator {
                     continue;
                 }
                 for (LaidOutLine line : block.lines()) {
-                    segments.add(new LineTextSegment(line.startOffset(), line.endOffset(), line.text()));
+                    segments.add(new LineTextSegment(line.startOffset(), line.endOffset(), line.sourceText()));
                     endOffset = Math.max(endOffset, line.endOffset());
                 }
             }

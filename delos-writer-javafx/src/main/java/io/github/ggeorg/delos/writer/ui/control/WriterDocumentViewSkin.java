@@ -18,7 +18,7 @@ import javafx.scene.layout.VBox;
 
 /** Skin that composes the editor viewport with optional rulers. */
 public final class WriterDocumentViewSkin extends SkinBase<WriterDocumentView> {
-    private final ViewTheme theme = ViewTheme.defaultTheme();
+    private final ViewTheme theme;
     private final DelosEditor editor;
     private final HorizontalRuler horizontalRuler = new HorizontalRuler();
     private final VerticalRuler verticalRuler = new VerticalRuler();
@@ -35,6 +35,7 @@ public final class WriterDocumentViewSkin extends SkinBase<WriterDocumentView> {
     WriterDocumentViewSkin(WriterDocumentView control) {
         super(control);
         this.editor = control.editor();
+        this.theme = editor.viewTheme();
         this.zoomGroup = new Group(editor);
         this.zoomHost = new ZoomViewportHost(zoomGroup);
         this.scrollPane = new ScrollPane(zoomHost);

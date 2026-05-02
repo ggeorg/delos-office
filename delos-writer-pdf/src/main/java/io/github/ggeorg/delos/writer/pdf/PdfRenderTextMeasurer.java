@@ -6,7 +6,6 @@ import io.github.ggeorg.delos.render.RenderTextMeasurer;
 import io.github.ggeorg.delos.render.TextLayoutResult;
 import io.github.ggeorg.delos.writer.layout.TextMeasurer;
 import org.apache.pdfbox.pdmodel.font.PDFont;
-import org.apache.pdfbox.pdmodel.font.PDFontDescriptor;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -52,12 +51,12 @@ public final class PdfRenderTextMeasurer implements RenderTextMeasurer, TextMeas
 
     @Override
     public double lineHeight(RenderFont font) {
-        return fonts.resolve(Objects.requireNonNull(font, "font")).size() * 1.2;
+        return metricsFor(font, " ").lineHeight();
     }
 
     @Override
     public double baseline(RenderFont font) {
-        return fonts.resolve(Objects.requireNonNull(font, "font")).size() * 0.8;
+        return metricsFor(font, " ").baseline();
     }
 
     @Override
@@ -99,24 +98,14 @@ public final class PdfRenderTextMeasurer implements RenderTextMeasurer, TextMeas
     }
 
     private TextDecorationMetrics decorationMetrics(RenderFont font, String text) {
+        return metricsFor(font, text).decorations();
+    }
+
+    private PdfFontMetrics metricsFor(RenderFont font, String text) {
         RenderFont resolvedFont = fonts.resolve(Objects.requireNonNull(font, "font"));
         String safeText = PdfTextSanitizer.sanitize(text);
         String sample = safeText.isEmpty() ? " " : safeText;
         PDFont pdfFont = fonts.fontFor(resolvedFont, sample);
-        PDFontDescriptor descriptor = pdfFont.getFontDescriptor();
-        if (descriptor == null) {
-            return TextDecorationMetrics.fromFont(resolvedFont);
-        }
-        double size = resolvedFont.size();
-        double descent = Math.abs(descriptor.getDescent()) / 1000.0 * size;
-        double capHeight = positiveMetric(descriptor.getCapHeight(), descriptor.getAscent() * 0.70) / 1000.0 * size;
-        double underlineOffset = Math.max(0.5, descent * 0.45);
-        double strikethroughOffset = Math.max(size * 0.20, capHeight * 0.45);
-        double thickness = Math.max(0.5, size / 18.0);
-        return new TextDecorationMetrics(underlineOffset, strikethroughOffset, thickness);
-    }
-
-    private static double positiveMetric(double preferred, double fallback) {
-        return preferred > 0.0 ? preferred : Math.max(0.0, fallback);
+        return PdfFontMetrics.from(pdfFont, resolvedFont.size());
     }
 }

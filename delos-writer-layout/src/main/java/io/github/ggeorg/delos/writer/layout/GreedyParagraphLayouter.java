@@ -1,7 +1,6 @@
 package io.github.ggeorg.delos.writer.layout;
 
 import io.github.ggeorg.delos.render.RenderFont;
-import io.github.ggeorg.delos.render.TextLayoutResult;
 import io.github.ggeorg.delos.writer.document.CharacterStyle;
 import io.github.ggeorg.delos.writer.document.Paragraph;
 import io.github.ggeorg.delos.writer.document.ParagraphStyle;
@@ -104,86 +103,12 @@ public final class GreedyParagraphLayouter implements ParagraphLayouter {
                 sourceIndex = i;
             }
 
-            lines.add(materializeLine(chars, lineStart, lineEndExclusive, baseFont, y, firstVisualLine, maxWidth, style));
+            lines.add(support.materializeLine(chars, lineStart, lineEndExclusive, baseFont, y, firstVisualLine, maxWidth, style));
             y += support.lineAdvance(baseFont, style, lineGap);
             firstVisualLine = false;
         }
 
         return lines;
-    }
-
-    private LaidOutLine materializeLine(
-            StyledText chars,
-            int startInclusive,
-            int endExclusive,
-            RenderFont baseFont,
-            double y,
-            boolean firstVisualLine,
-            double maxWidth,
-            ParagraphStyle paragraphStyle
-    ) {
-        double firstLineIndent = firstVisualLine ? Math.max(0, paragraphStyle.firstLineIndent()) : 0;
-        if (startInclusive >= endExclusive) {
-            int offset = startInclusive < chars.size() ? chars.offset(startInclusive) : 0;
-            return support.emptyLine(baseFont, offset, y, firstLineIndent);
-        }
-
-        StringBuilder lineText = new StringBuilder();
-        List<Double> relativeCaretStops = new ArrayList<>();
-        List<LaidOutRun> runs = new ArrayList<>();
-        relativeCaretStops.add(0.0);
-
-        double relativeX = 0;
-        int lineColumn = 0;
-        int runStart = startInclusive;
-        while (runStart < endExclusive) {
-            CharacterStyle runStyle = chars.style(runStart);
-            int runEnd = runStart + 1;
-            while (runEnd < endExclusive && runStyle.sameAs(chars.style(runEnd))) {
-                runEnd++;
-            }
-
-            String runText = chars.text(runStart, runEnd);
-            RenderFont runFont = measurer.styledFont(baseFont, runStyle.bold(), runStyle.italic());
-            TextLayoutResult runLayout = measurer.layoutText(runText, runFont);
-            List<Double> runStops = runLayout.caretStops();
-            double runWidth = runLayout.width();
-            double runX = relativeX;
-
-            runs.add(new LaidOutRun(
-                    runText,
-                    lineColumn,
-                    lineColumn + runText.length(),
-                    runX,
-                    runWidth,
-                    runStyle
-            ));
-
-            lineText.append(runText);
-            for (int i = 1; i < runStops.size(); i++) {
-                relativeCaretStops.add(runX + runStops.get(i));
-            }
-
-            relativeX += runWidth;
-            lineColumn += runText.length();
-            runStart = runEnd;
-        }
-
-        int startOffset = chars.offset(startInclusive);
-        int endOffset = chars.offset(endExclusive - 1) + 1;
-        double lineX = ParagraphLayouterSupport.alignedX(paragraphStyle.alignment(), firstLineIndent, maxWidth, relativeX);
-        return new LaidOutLine(
-                lineText.toString(),
-                lineX,
-                y,
-                relativeX,
-                measurer.lineHeight(baseFont),
-                measurer.baseline(baseFont),
-                startOffset,
-                endOffset,
-                runs,
-                relativeCaretStops
-        );
     }
 
 }

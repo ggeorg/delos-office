@@ -15,7 +15,7 @@ class WriterMainWindowCompositionContractTest {
         String mainWindow = Files.readString(Path.of("src/main/java/io/github/ggeorg/delos/writer/app/WriterMainWindow.java"));
 
         assertTrue(mainWindow.contains("WriterDocumentView"));
-        assertTrue(mainWindow.contains("documentView = new WriterDocumentView(session)"));
+        assertTrue(mainWindow.contains("documentView = outputPreview.createDocumentView(session)"));
         assertTrue(mainWindow.contains("editor = documentView.editor()"));
         assertTrue(mainWindow.contains("WriterCommandProvider"));
         assertTrue(mainWindow.contains("WriterFileController"));
@@ -48,6 +48,7 @@ class WriterMainWindowCompositionContractTest {
     void extractedControllersAndTraditionalChromeClassesExist() {
         assertTrue(Files.exists(Path.of("src/main/java/io/github/ggeorg/delos/writer/app/WriterCommandProvider.java")));
         assertTrue(Files.exists(Path.of("src/main/java/io/github/ggeorg/delos/writer/app/WriterFileController.java")));
+        assertTrue(Files.exists(Path.of("src/main/java/io/github/ggeorg/delos/writer/app/WriterOutputPreview.java")));
         assertTrue(Files.exists(Path.of("src/main/java/io/github/ggeorg/delos/writer/app/WriterChromeController.java")));
         assertTrue(Files.exists(Path.of("src/main/java/io/github/ggeorg/delos/writer/app/WriterMenuBar.java")));
         assertTrue(Files.exists(Path.of("src/main/java/io/github/ggeorg/delos/writer/app/WriterToolBar.java")));

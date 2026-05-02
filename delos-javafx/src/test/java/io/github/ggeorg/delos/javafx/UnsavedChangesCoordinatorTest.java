@@ -1,4 +1,4 @@
-package io.github.ggeorg.delos.writer.ui;
+package io.github.ggeorg.delos.javafx;
 
 import org.junit.jupiter.api.Test;
 

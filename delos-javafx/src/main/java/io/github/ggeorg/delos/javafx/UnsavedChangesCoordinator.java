@@ -1,11 +1,16 @@
-package io.github.ggeorg.delos.writer.ui;
+package io.github.ggeorg.delos.javafx;
 
 import java.util.Objects;
 import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
 
 /**
- * Small policy helper so pending-changes behavior stays testable and boring.
+ * Small shared policy helper for pending-changes workflows.
+ *
+ * <p>This class is deliberately UI-toolkit neutral: applications provide the
+ * prompt and save actions. Keeping the decision logic here lets Writer, Calc,
+ * Slides, Base, and third-party Delos apps reuse the same tested behavior
+ * without copying save/discard/cancel branching into each app shell.</p>
  */
 public final class UnsavedChangesCoordinator {
 

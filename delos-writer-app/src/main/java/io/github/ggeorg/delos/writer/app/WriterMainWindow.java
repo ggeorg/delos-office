@@ -21,12 +21,14 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
+import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Objects;
 
 public final class WriterMainWindow extends BorderPane {
     private final Stage stage;
     private final EditorSession session = new EditorSession(Document.sample());
+    private final WriterOutputPreview outputPreview = WriterOutputPreview.createDefault();
     private final WriterDocumentView documentView;
     private final DelosEditor editor;
     private final CommandRegistry commandRegistry = new CommandRegistry();
@@ -51,7 +53,7 @@ public final class WriterMainWindow extends BorderPane {
         getStyleClass().add("main-window");
         setPadding(new Insets(0));
 
-        documentView = new WriterDocumentView(session);
+        documentView = outputPreview.createDocumentView(session);
         editor = documentView.editor();
         fileController = new WriterFileController(stage, session, editor, this::refreshChrome);
         insertController = new WriterInsertController(stage, editor);
@@ -155,7 +157,20 @@ public final class WriterMainWindow extends BorderPane {
     }
 
     public boolean requestClose() {
-        return fileController.requestClose();
+        if (!fileController.requestClose()) {
+            return false;
+        }
+        closePreviewResources();
+        return true;
+    }
+
+    private void closePreviewResources() {
+        try {
+            outputPreview.close();
+        } catch (IOException ignored) {
+            // Closing measurement-only preview resources should not block the
+            // app from closing after the user has already confirmed.
+        }
     }
 
     private void toggleInspector() {

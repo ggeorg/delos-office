@@ -7,6 +7,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 final class WriterLayoutBoundaryContractTest {
@@ -30,6 +31,22 @@ final class WriterLayoutBoundaryContractTest {
                 .toList();
 
         assertTrue(offenders.isEmpty(), () -> "Layout module owns view-only theme values: " + offenders);
+    }
+
+
+    @Test
+    void reusableHyphenationEngineLivesOutsideWriterLayout() throws IOException {
+        String pom = Files.readString(Path.of("pom.xml"));
+        String moduleInfo = Files.readString(Path.of("src/main/java/module-info.java"));
+
+        assertTrue(pom.contains("delos-hyphenation"),
+                "Writer layout should depend on the reusable Delos hyphenation module.");
+        assertTrue(moduleInfo.contains("requires transitive io.github.ggeorg.delos.hyphenation;"),
+                "Writer layout should read the public hyphenation module, not own the engine.");
+        assertFalse(Files.exists(MAIN_SOURCES.resolve("io/github/ggeorg/delos/writer/layout/LiangHyphenator.java")),
+                "Liang implementation belongs in delos-hyphenation, not writer layout.");
+        assertFalse(Files.exists(MAIN_SOURCES.resolve("io/github/ggeorg/delos/writer/layout/DefaultHyphenators.java")),
+                "Default hyphenator factories belong in delos-hyphenation, not writer layout.");
     }
 
     private static List<Path> javaFiles() throws IOException {

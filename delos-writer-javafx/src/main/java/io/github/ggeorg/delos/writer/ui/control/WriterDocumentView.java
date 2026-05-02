@@ -2,6 +2,11 @@ package io.github.ggeorg.delos.writer.ui.control;
 
 import io.github.ggeorg.delos.writer.document.Document;
 import io.github.ggeorg.delos.writer.session.EditorSession;
+import io.github.ggeorg.delos.render.RenderTextMeasurer;
+import io.github.ggeorg.delos.writer.layout.DocumentLayoutEngine;
+import io.github.ggeorg.delos.writer.render.DefaultPageRenderer;
+import io.github.ggeorg.delos.writer.render.PageRenderer;
+import io.github.ggeorg.delos.writer.ui.ViewTheme;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.ObjectProperty;
@@ -40,12 +45,39 @@ public final class WriterDocumentView extends Control {
     private WriterDocumentViewZoomController zoomController;
 
     public WriterDocumentView(EditorSession session) {
+        this(session, null);
+    }
+
+    private WriterDocumentView(EditorSession session, DelosEditor editor) {
         this.session = Objects.requireNonNull(session, "session");
-        this.editor = new DelosEditor(session);
-        this.editorRef.set(editor);
+        this.editor = editor == null ? new DelosEditor(session) : editor;
+        this.editorRef.set(this.editor);
         getStyleClass().add("writer-document-view");
         setFocusTraversable(false);
         setSkin(createDefaultSkin());
+    }
+
+    public WriterDocumentView(EditorSession session, ViewTheme viewTheme, DocumentLayoutEngine layoutEngine, PageRenderer pageRenderer) {
+        this(session, new DelosEditor(session, viewTheme, layoutEngine, pageRenderer));
+    }
+
+    public WriterDocumentView(
+            EditorSession session,
+            ViewTheme viewTheme,
+            DocumentLayoutEngine layoutEngine,
+            RenderTextMeasurer renderTextMeasurer
+    ) {
+        this(session, viewTheme, layoutEngine, new DefaultPageRenderer(), renderTextMeasurer);
+    }
+
+    public WriterDocumentView(
+            EditorSession session,
+            ViewTheme viewTheme,
+            DocumentLayoutEngine layoutEngine,
+            PageRenderer pageRenderer,
+            RenderTextMeasurer renderTextMeasurer
+    ) {
+        this(session, new DelosEditor(session, viewTheme, layoutEngine, pageRenderer, renderTextMeasurer));
     }
 
     public EditorSession session() {

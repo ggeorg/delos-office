@@ -1,4 +1,4 @@
-package io.github.ggeorg.delos.writer.layout;
+package io.github.ggeorg.delos.hyphenation;
 
 import java.util.List;
 

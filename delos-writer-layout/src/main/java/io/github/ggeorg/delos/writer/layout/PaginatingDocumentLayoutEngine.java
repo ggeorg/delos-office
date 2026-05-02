@@ -748,7 +748,8 @@ public final class PaginatingDocumentLayoutEngine implements DocumentLayoutEngin
                 line.startOffset(),
                 line.endOffset(),
                 line.runs(),
-                line.caretStops()
+                line.caretStops(),
+                line.caretOffsets()
             ));
         }
 

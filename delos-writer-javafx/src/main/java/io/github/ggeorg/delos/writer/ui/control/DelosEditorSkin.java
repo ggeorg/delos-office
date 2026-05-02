@@ -14,7 +14,13 @@ public final class DelosEditorSkin extends SkinBase<DelosEditor> {
 
     DelosEditorSkin(DelosEditor control) {
         super(control);
-        this.viewport = new DocumentViewport(control.session());
+        this.viewport = new DocumentViewport(
+                control.session(),
+                control.viewTheme(),
+                control.layoutEngine(),
+                control.pageRenderer(),
+                control.renderTextMeasurer()
+        );
         control.attachViewport(viewport);
         getChildren().add(viewport);
     }

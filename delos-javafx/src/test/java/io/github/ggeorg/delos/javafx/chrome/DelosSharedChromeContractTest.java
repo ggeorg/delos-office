@@ -2,6 +2,10 @@ package io.github.ggeorg.delos.javafx.chrome;
 
 import io.github.ggeorg.delos.javafx.DelosStylesheets;
 import io.github.ggeorg.delos.javafx.icon.DelosIconId;
+import io.github.ggeorg.delos.javafx.inspector.DelosInspector;
+import io.github.ggeorg.delos.javafx.inspector.FormRow;
+import io.github.ggeorg.delos.javafx.inspector.InspectorSection;
+import io.github.ggeorg.delos.javafx.inspector.InspectorTab;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -26,11 +30,17 @@ final class DelosSharedChromeContractTest {
     }
 
     @Test
-    void sharedInspectorControlsLiveInExportedChromePackage() {
-        assertEquals("io.github.ggeorg.delos.javafx.chrome", DelosInspector.class.getPackageName());
-        assertEquals("io.github.ggeorg.delos.javafx.chrome", InspectorSection.class.getPackageName());
-        assertEquals("io.github.ggeorg.delos.javafx.chrome", InspectorTab.class.getPackageName());
-        assertEquals("io.github.ggeorg.delos.javafx.chrome", FormRow.class.getPackageName());
+    void sharedInspectorControlsLiveInExportedInspectorPackage() {
+        assertEquals("io.github.ggeorg.delos.javafx.inspector", DelosInspector.class.getPackageName());
+        assertEquals("io.github.ggeorg.delos.javafx.inspector", InspectorSection.class.getPackageName());
+        assertEquals("io.github.ggeorg.delos.javafx.inspector", InspectorTab.class.getPackageName());
+        assertEquals("io.github.ggeorg.delos.javafx.inspector", FormRow.class.getPackageName());
+    }
+
+    @Test
+    void sharedChromePackageKeepsMenuToolbarAndSegmentedControlsOnly() {
+        assertEquals("io.github.ggeorg.delos.javafx.chrome", DelosMenus.class.getPackageName());
+        assertEquals("io.github.ggeorg.delos.javafx.chrome", DelosToolBars.class.getPackageName());
         assertEquals("io.github.ggeorg.delos.javafx.chrome", SegmentedControl.class.getPackageName());
         assertEquals("io.github.ggeorg.delos.javafx.chrome", SegmentedOption.class.getPackageName());
     }

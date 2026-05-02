@@ -27,8 +27,8 @@ public final class StoryEditor {
             paragraphs.add(Paragraph.of(""));
         }
 
-        TextPosition safeStart = clampPosition(paragraphs, Objects.requireNonNull(start, "start"));
-        TextPosition safeEnd = clampPosition(paragraphs, Objects.requireNonNull(end, "end"));
+        TextPosition safeStart = ParagraphRuns.clampPosition(paragraphs, Objects.requireNonNull(start, "start"));
+        TextPosition safeEnd = ParagraphRuns.clampPosition(paragraphs, Objects.requireNonNull(end, "end"));
         if (safeStart.compareTo(safeEnd) > 0) {
             TextPosition tmp = safeStart;
             safeStart = safeEnd;
@@ -37,9 +37,9 @@ public final class StoryEditor {
 
         Paragraph startParagraph = paragraphs.get(safeStart.paragraphIndex());
         Paragraph endParagraph = paragraphs.get(safeEnd.paragraphIndex());
-        List<TextRun> prefixRuns = prefixRuns(startParagraph, safeStart.offset());
-        List<TextRun> suffixRuns = suffixRuns(endParagraph, safeEnd.offset());
-        String[] replacementParts = normalizeReplacement(replacement).split("\n", -1);
+        List<TextRun> prefixRuns = ParagraphRuns.prefix(startParagraph, safeStart.offset());
+        List<TextRun> suffixRuns = ParagraphRuns.suffix(endParagraph, safeEnd.offset());
+        String[] replacementParts = ParagraphRuns.normalizeReplacement(replacement).split("\n", -1);
 
         List<Paragraph> replacementParagraphs = new ArrayList<>();
         TextPosition newCaret;
@@ -94,7 +94,7 @@ public final class StoryEditor {
     }
 
     public Story fromPlainText(String text) {
-        String normalized = normalizeReplacement(text);
+        String normalized = ParagraphRuns.normalizeReplacement(text);
         String[] parts = normalized.split("\n", -1);
         List<Paragraph> paragraphs = new ArrayList<>();
         for (String part : parts) {
@@ -157,53 +157,4 @@ public final class StoryEditor {
         return List.copyOf(updatedBlocks);
     }
 
-    private TextPosition clampPosition(List<Paragraph> paragraphs, TextPosition position) {
-        int paragraphIndex = Math.max(0, Math.min(position.paragraphIndex(), paragraphs.size() - 1));
-        int offset = Math.max(0, Math.min(position.offset(), paragraphs.get(paragraphIndex).length()));
-        return new TextPosition(paragraphIndex, offset);
-    }
-
-    private List<TextRun> prefixRuns(Paragraph paragraph, int endOffsetExclusive) {
-        List<TextRun> result = new ArrayList<>();
-        int offset = 0;
-        for (TextRun run : paragraph.runs()) {
-            int runStart = offset;
-            int runEnd = offset + run.text().length();
-            if (endOffsetExclusive <= runStart) {
-                break;
-            }
-            if (endOffsetExclusive >= runEnd) {
-                result.add(run);
-            } else {
-                result.add(run.withText(run.text().substring(0, endOffsetExclusive - runStart)));
-                break;
-            }
-            offset = runEnd;
-        }
-        return result;
-    }
-
-    private List<TextRun> suffixRuns(Paragraph paragraph, int startOffsetInclusive) {
-        List<TextRun> result = new ArrayList<>();
-        int offset = 0;
-        for (TextRun run : paragraph.runs()) {
-            int runStart = offset;
-            int runEnd = offset + run.text().length();
-            if (startOffsetInclusive >= runEnd) {
-                offset = runEnd;
-                continue;
-            }
-            if (startOffsetInclusive <= runStart) {
-                result.add(run);
-            } else {
-                result.add(run.withText(run.text().substring(startOffsetInclusive - runStart)));
-            }
-            offset = runEnd;
-        }
-        return result;
-    }
-
-    private String normalizeReplacement(String replacement) {
-        return replacement == null ? "" : replacement.replace("\r\n", "\n").replace('\r', '\n');
-    }
 }

@@ -1,6 +1,5 @@
 package io.github.ggeorg.delos.writer.pdf;
 
-import io.github.ggeorg.delos.render.RenderColor;
 import io.github.ggeorg.delos.render.RenderFont;
 import io.github.ggeorg.delos.render.RenderTheme;
 import io.github.ggeorg.delos.writer.layout.LayoutTheme;
@@ -17,7 +16,7 @@ import java.util.Objects;
  */
 public record PdfExportOptions(LayoutTheme layoutTheme, RenderTheme renderTheme) {
     public PdfExportOptions {
-        layoutTheme = pdfLayoutTheme(layoutTheme);
+        layoutTheme = HeadlessOutputLayoutPolicy.canonicalLayoutTheme(layoutTheme);
         renderTheme = renderThemeWithFonts(Objects.requireNonNull(renderTheme, "renderTheme"),
                 layoutTheme.titleFont(),
                 layoutTheme.bodyFont());
@@ -32,49 +31,14 @@ public record PdfExportOptions(LayoutTheme layoutTheme, RenderTheme renderTheme)
     }
 
     public static PdfExportOptions defaultOptions() {
-        LayoutTheme baseLayout = LayoutTheme.defaultTheme();
-        RenderFont titleFont = new RenderFont("Helvetica", baseLayout.titleFont().size(), baseLayout.titleFont().bold(), baseLayout.titleFont().italic());
-        RenderFont bodyFont = new RenderFont("Helvetica", baseLayout.bodyFont().size(), baseLayout.bodyFont().bold(), baseLayout.bodyFont().italic());
-        LayoutTheme pdfLayout = new LayoutTheme(
-                titleFont,
-                bodyFont,
-                baseLayout.titleGap(),
-                baseLayout.titleLineGap(),
-                baseLayout.separatorGap(),
-                baseLayout.paragraphSpacing(),
-                baseLayout.bodyLineGap()
-        );
-        return new PdfExportOptions(pdfLayout, new RenderTheme(
-                RenderColor.rgb(255, 255, 255),
-                RenderColor.rgba(0, 0, 0, 0.0),
-                RenderColor.rgb(255, 255, 255),
-                RenderColor.rgb(255, 255, 255),
-                RenderColor.rgb(229, 233, 239),
-                RenderColor.rgb(31, 37, 46),
-                RenderColor.rgb(52, 58, 66),
-                RenderColor.rgba(0, 0, 0, 0.0),
-                titleFont,
-                bodyFont,
-                0.0,
-                0.0,
-                0.0
-        ));
+        return HeadlessOutputLayoutPolicy.defaultPolicy().exportOptions();
     }
 
     /**
      * Converts a Writer layout theme into its canonical PDF-facing equivalent.
      */
     public static LayoutTheme pdfLayoutTheme(LayoutTheme theme) {
-        LayoutTheme safeTheme = Objects.requireNonNull(theme, "theme");
-        return new LayoutTheme(
-                PdfStandardFontMapper.resolve(safeTheme.titleFont()),
-                PdfStandardFontMapper.resolve(safeTheme.bodyFont()),
-                safeTheme.titleGap(),
-                safeTheme.titleLineGap(),
-                safeTheme.separatorGap(),
-                safeTheme.paragraphSpacing(),
-                safeTheme.bodyLineGap()
-        );
+        return HeadlessOutputLayoutPolicy.canonicalLayoutTheme(theme);
     }
 
     private static LayoutTheme layoutThemeFromRenderTheme(RenderTheme theme) {
