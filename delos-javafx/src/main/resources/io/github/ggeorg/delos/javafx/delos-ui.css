@@ -1,18 +1,24 @@
 .delos-menu-bar {
-    -fx-background-color: derive(-fx-base, 4%);
+    -fx-background-color: #ffffff;
+    -fx-border-color: #e2e8f0;
+    -fx-border-width: 0 0 1 0;
 }
 
 .delos-toolbar {
-    -fx-background-color: linear-gradient(to bottom, derive(-fx-base, 9%), derive(-fx-base, 2%));
-    -fx-border-color: transparent transparent derive(-fx-base, -18%) transparent;
+    -fx-background-color: #f1f5f9;
+    -fx-border-color: transparent transparent #e2e8f0 transparent;
     -fx-border-width: 0 0 1 0;
-    -fx-spacing: 6;
+    -fx-spacing: 8;
 }
 
 .delos-toolbar-button {
-    -fx-min-height: 28px;
-    -fx-pref-height: 28px;
-    -fx-padding: 4 8 4 8;
+    -fx-min-width: 32px;
+    -fx-pref-width: 32px;
+    -fx-max-width: 32px;
+    -fx-min-height: 32px;
+    -fx-pref-height: 32px;
+    -fx-max-height: 32px;
+    -fx-padding: 4;
 }
 
 .delos-toolbar-button .delos-icon {
@@ -21,6 +27,11 @@
 
 .delos-toolbar-separator {
     -fx-padding: 0 3 0 3;
+}
+
+.delos-toolbar-group {
+    -fx-alignment: center;
+    -fx-spacing: 0;
 }
 
 .delos-status-line {
@@ -42,32 +53,38 @@
 }
 
 .delos-inspector {
-    -fx-background-color: #f4f8fc;
-    -fx-border-color: #cbd5e1;
+    -fx-background-color: #f8fafc;
+    -fx-border-color: #d9e2ee;
     -fx-border-width: 0 0 0 1;
 }
 
 .delos-inspector-tabs {
-    -fx-background-color: #f4f8fc;
-    -fx-spacing: 6;
+    -fx-background-color: #f8fafc;
+    -fx-border-color: #e2e8f0;
+    -fx-border-width: 0 0 1 0;
+    -fx-spacing: 0;
 }
 
 .delos-inspector-tab {
     -fx-background-color: transparent;
-    -fx-background-radius: 8;
-    -fx-border-color: transparent;
-    -fx-padding: 6 8;
+    -fx-background-radius: 0;
+    -fx-border-color: #e8eef6;
+    -fx-border-width: 0 1 0 0;
+    -fx-padding: 0 8;
     -fx-font-size: 13px;
-    -fx-text-fill: #334155;
+    -fx-text-fill: #64748b;
 }
 
 .delos-inspector-tab:hover {
-    -fx-background-color: #e2e8f0;
+    -fx-background-color: #ffffff;
 }
 
 .delos-inspector-tab:selected {
-    -fx-background-color: #dbeafe;
-    -fx-text-fill: #1d4ed8;
+    -fx-background-color: #ffffff;
+    -fx-text-fill: #0f172a;
+    -fx-font-weight: 700;
+    -fx-border-color: #e8eef6 #e8eef6 #2563eb #e8eef6;
+    -fx-border-width: 0 1 2 0;
 }
 
 .delos-inspector-scroll {
@@ -79,17 +96,7 @@
     -fx-background-color: transparent;
 }
 
-/* Inspector panels should scroll with mouse wheel/trackpad, but should not show
-   their own scrollbar. The document editor scrollbar is the only prominent
-   vertical scrollbar in Writer. */
-.delos-inspector-scroll .scroll-bar:vertical {
-    -fx-min-width: 0;
-    -fx-pref-width: 0;
-    -fx-max-width: 0;
-    -fx-padding: 0;
-    -fx-opacity: 0;
-}
-
+/* Inspector content may exceed the available height; vertical scrollbars are allowed as needed. */
 .delos-inspector-scroll .scroll-bar:horizontal {
     -fx-min-height: 0;
     -fx-pref-height: 0;
@@ -98,29 +105,22 @@
     -fx-opacity: 0;
 }
 
-.delos-inspector-scroll .scroll-bar .track,
-.delos-inspector-scroll .scroll-bar .thumb,
-.delos-inspector-scroll .scroll-bar .increment-button,
-.delos-inspector-scroll .scroll-bar .decrement-button {
-    -fx-background-color: transparent;
-    -fx-background-insets: 0;
-    -fx-padding: 0;
-}
-
 .delos-inspector-content-host {
     -fx-background-color: transparent;
+    -fx-padding: 14;
 }
 
 .delos-inspector-section {
     -fx-border-color: #e2e8f0;
     -fx-border-width: 0 0 1 0;
+    -fx-padding: 0 0 14 0;
 }
 
 .delos-inspector-section-title {
-    -fx-font-size: 13px;
-    -fx-font-weight: 700;
-    -fx-text-fill: #334155;
-    -fx-padding: 0 0 2 0;
+    -fx-font-size: 11px;
+    -fx-font-weight: 800;
+    -fx-text-fill: #64748b;
+    -fx-padding: 0 0 6 0;
 }
 
 .delos-inspector-form-row {
@@ -153,13 +153,13 @@
 
 .delos-inspector-command-button {
     -fx-background-color: #ffffff;
-    -fx-background-radius: 7;
+    -fx-background-radius: 8;
     -fx-border-color: #cbd5e1;
-    -fx-border-radius: 7;
-    -fx-min-height: 32px;
-    -fx-pref-height: 32px;
-    -fx-padding: 6 9;
-    -fx-text-fill: #1e293b;
+    -fx-border-radius: 8;
+    -fx-min-height: 28px;
+    -fx-pref-height: 28px;
+    -fx-padding: 5 8;
+    -fx-text-fill: #334155;
 }
 
 .delos-inspector-command-button:hover {
@@ -189,4 +189,65 @@
 .delos-inspector .toggle-button:disabled,
 .delos-inspector .check-box:disabled {
     -fx-opacity: 0.68;
+}
+
+
+/* UX-3a mockup polish: keep shared controls compact and Pages-like without changing behavior. */
+.delos-inspector .text-input,
+.delos-inspector .combo-box-base {
+    -fx-background-color: #ffffff;
+    -fx-background-radius: 8;
+    -fx-border-color: #cbd5e1;
+    -fx-border-radius: 8;
+    -fx-min-height: 28px;
+    -fx-pref-height: 28px;
+}
+
+.delos-inspector .check-box {
+    -fx-text-fill: #475569;
+    -fx-font-size: 12px;
+}
+
+
+/* Delos toolbar glyph icons: reliable fallbacks for Writer-specific actions
+   where the current Feather pack either has no close visual match or maps two
+   distinct concepts to the same symbol. */
+.delos-glyph-icon {
+    -fx-alignment: center;
+    -fx-text-alignment: center;
+    -fx-content-display: center;
+    -fx-font-size: 15px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #334155;
+}
+
+.delos-glyph-icon-formula,
+.delos-glyph-icon-function {
+    -fx-font-size: 13px;
+    -fx-font-style: italic;
+    -fx-font-weight: 700;
+}
+
+.delos-toolbar-button:selected .delos-glyph-icon,
+.writer-toolbar-button:selected .delos-glyph-icon,
+.writer-document-header-button:selected .delos-glyph-icon {
+    -fx-text-fill: #1d4ed8;
+}
+
+/* UX-4a: Font Awesome 5 is now the shared Delos icon pack. Keep icon sizing
+   centralized so application modules do not depend on concrete Ikonli packs. */
+.delos-icon {
+    -fx-icon-color: #334155;
+}
+
+.delos-toolbar-button:hover .delos-icon,
+.delos-toolbar-button:focused .delos-icon,
+.delos-toolbar-button:selected .delos-icon {
+    -fx-icon-color: #1d4ed8;
+}
+
+/* UX-4e: Material Design icons are slightly heavier; keep toolbar glyphs crisp. */
+.delos-toolbar-button .delos-icon,
+.delos-toolbar-group .delos-icon {
+    -fx-icon-size: 18px;
 }

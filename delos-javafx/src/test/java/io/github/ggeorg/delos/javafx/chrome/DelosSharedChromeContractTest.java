@@ -22,9 +22,10 @@ final class DelosSharedChromeContractTest {
         String moduleInfo = Files.readString(Path.of("src/main/java/module-info.java"));
 
         assertTrue(pom.contains("ikonli-javafx"));
-        assertTrue(pom.contains("ikonli-feather-pack"));
+        assertTrue(pom.contains("ikonli-materialdesign-pack"));
         assertTrue(moduleInfo.contains("org.kordamp.ikonli.core"));
         assertTrue(moduleInfo.contains("org.kordamp.ikonli.javafx"));
+        assertTrue(moduleInfo.contains("org.kordamp.ikonli.materialdesign"));
         assertTrue(moduleInfo.contains("io.github.ggeorg.delos.javafx.chrome"));
         assertTrue(moduleInfo.contains("io.github.ggeorg.delos.javafx.icon"));
     }
@@ -41,14 +42,16 @@ final class DelosSharedChromeContractTest {
     void sharedChromePackageKeepsMenuToolbarAndSegmentedControlsOnly() {
         assertEquals("io.github.ggeorg.delos.javafx.chrome", DelosMenus.class.getPackageName());
         assertEquals("io.github.ggeorg.delos.javafx.chrome", DelosToolBars.class.getPackageName());
+        assertEquals("io.github.ggeorg.delos.javafx.chrome", DelosToolbarGroup.class.getPackageName());
         assertEquals("io.github.ggeorg.delos.javafx.chrome", SegmentedControl.class.getPackageName());
         assertEquals("io.github.ggeorg.delos.javafx.chrome", SegmentedOption.class.getPackageName());
     }
 
     @Test
     void appCodeCanUseStableDelosIconIdsInsteadOfIkonliTypes() {
-        assertTrue(DelosIconId.SAVE.iconLiteral().startsWith("fth-"));
-        assertTrue(DelosIconId.PRINT.iconLiteral().startsWith("fth-"));
+        assertTrue(DelosIconId.SAVE.iconLiteral().startsWith("mdi-"));
+        assertTrue(DelosIconId.PRINT.iconLiteral().startsWith("mdi-"));
+        assertTrue(DelosIconId.IMAGE.iconLiteral().startsWith("mdi-"));
     }
 
     @Test
