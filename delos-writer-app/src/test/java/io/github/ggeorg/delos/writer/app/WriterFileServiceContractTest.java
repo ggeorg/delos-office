@@ -81,6 +81,10 @@ final class WriterFileServiceContractTest {
                 WriterFileService.suggestedSaveFileName(Path.of("report.dwrite"), "Ignored"));
         assertEquals("Untitled" + WriterDocumentExtensions.DOCUMENT,
                 WriterFileService.suggestedSaveFileName(null, ""));
+        assertEquals("Untitled" + WriterDocumentExtensions.DOCUMENT,
+                WriterFileService.suggestedSaveFileName(null, "Untitled" + WriterDocumentExtensions.DOCUMENT));
+        assertEquals("report" + WriterDocumentExtensions.DOCUMENT,
+                WriterFileService.suggestedSaveFileName(null, "report" + WriterDocumentExtensions.DOCUMENT));
     }
 
     @Test

@@ -15,7 +15,9 @@ final class WriterCssContractTest {
         String css = Files.readString(Path.of("src/main/resources/io/github/ggeorg/delos/writer/app/delos-writer.css"));
 
         assertTrue(css.contains(".writer-toolbar-button"));
-        assertTrue(css.contains(".writer-toolbar-separator"));
+        assertFalse(css.contains(".writer-toolbar-separator"), "Toolbar groups are separated by spacing, not visible divider lines.");
+        assertTrue(css.contains(".writer-canvas-badge"));
+        assertTrue(css.contains(".writer-statistics-popover"));
         assertTrue(css.contains(".writer-page-setup-inspector"));
         assertTrue(css.contains(".writer-table-inspector"));
         assertTrue(css.contains(".danger-button"));

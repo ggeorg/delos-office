@@ -117,9 +117,11 @@ final class WriterFileService {
     }
 
     static String suggestedSaveFileName(Path currentFile, String documentTitle) {
-        return WriterFileChoosers.sanitizeFileName(
+        String baseName = WriterFileChoosers.sanitizeFileName(
                 WriterFileChoosers.suggestedBaseName(currentFile, documentTitle)
-        ) + WriterDocumentExtensions.DOCUMENT;
+        );
+        return WriterFileChoosers.stripExtensionForDisplay(baseName, WriterDocumentExtensions.DOCUMENT)
+                + WriterDocumentExtensions.DOCUMENT;
     }
 
     static boolean isNativeWriterPath(Path path) {

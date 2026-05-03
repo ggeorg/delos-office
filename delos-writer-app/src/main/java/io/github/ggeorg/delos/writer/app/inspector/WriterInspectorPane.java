@@ -29,10 +29,10 @@ public final class WriterInspectorPane extends DelosInspector {
         imageInspector = new WriterImageInspector(editor, commandRegistry);
         tableInspector = new WriterTableInspector(editor, commandRegistry);
 
+        addTab("style", "Style", formatPanel());
+        addTab("layout", "Layout", layoutPanel());
         addTab("document", "Document", documentPanel());
-        addTab("format", "Format", formatPanel());
-        addTab("arrange", "Arrange", arrangePanel());
-        selectTab("format");
+        selectTab("style");
         refresh();
     }
 
@@ -49,22 +49,22 @@ public final class WriterInspectorPane extends DelosInspector {
         setInspectorVisible(tableInspector, hasTable);
     }
 
-    private VBox documentPanel() {
-        VBox panel = panel();
-        panel.getChildren().add(pageSetupInspector);
-        return panel;
-    }
-
     private VBox formatPanel() {
         VBox panel = new VBox(0, textFormatInspector, imageInspector, tableInspector);
         panel.getStyleClass().add("writer-format-inspector");
         return panel;
     }
 
-    private VBox arrangePanel() {
+    private VBox layoutPanel() {
         VBox panel = panel();
-        InspectorSection placeholder = new InspectorSection("Arrange");
-        Label empty = new Label("Select an image or object to arrange.");
+        panel.getChildren().add(pageSetupInspector);
+        return panel;
+    }
+
+    private VBox documentPanel() {
+        VBox panel = panel();
+        InspectorSection placeholder = new InspectorSection("Document");
+        Label empty = new Label("Document statistics and metadata coming soon.");
         empty.getStyleClass().add("delos-inspector-empty-text");
         placeholder.add(empty);
         panel.getChildren().add(placeholder);

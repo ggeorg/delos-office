@@ -15,9 +15,9 @@ final class WriterInspectorPaneContractTest {
         String source = Files.readString(Path.of("src/main/java/io/github/ggeorg/delos/writer/app/inspector/WriterInspectorPane.java"));
 
         assertTrue(source.contains("extends DelosInspector"));
+        assertTrue(source.contains("addTab(\"style\", \"Style\""));
+        assertTrue(source.contains("addTab(\"layout\", \"Layout\""));
         assertTrue(source.contains("addTab(\"document\", \"Document\""));
-        assertTrue(source.contains("addTab(\"format\", \"Format\""));
-        assertTrue(source.contains("addTab(\"arrange\", \"Arrange\""));
         assertTrue(source.contains("new WriterPageSetupInspector(session, editor)"));
         assertTrue(source.contains("new WriterTextFormatInspector(editor, commandRegistry)"));
         assertTrue(source.contains("new WriterImageInspector(editor, commandRegistry)"));

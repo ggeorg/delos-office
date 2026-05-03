@@ -18,6 +18,7 @@ final class WriterSharedUiContractTest {
         String app = Files.readString(Path.of("src/main/java/io/github/ggeorg/delos/writer/app/DelosWriterApp.java"));
 
         assertTrue(toolbar.contains("DelosToolBars"));
+        assertTrue(toolbar.contains("DelosToolbarGroup"));
         assertTrue(toolbar.contains("DelosIconId"));
         assertTrue(menuBar.contains("DelosMenus"));
         assertTrue(inspector.contains("DelosInspector"));
