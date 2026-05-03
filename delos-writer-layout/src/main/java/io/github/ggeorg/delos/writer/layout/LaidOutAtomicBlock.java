@@ -3,9 +3,9 @@ package io.github.ggeorg.delos.writer.layout;
 /**
  * Positioned top-level block that behaves as one selectable object in the editor.
  *
- * <p>Images, formulas, tables, and horizontal rules are atomic in v69. They
- * participate in page flow as normal blocks, but hit-testing and selection use
- * their whole rectangle rather than an inner caret model.</p>
+ * <p>Images, formulas, tables, and horizontal rules participate in page flow as
+ * normal blocks, but hit-testing and selection use their whole rectangle rather
+ * than an inner caret model.</p>
  */
 public sealed interface LaidOutAtomicBlock extends LaidOutBlock
         permits LaidOutImageBlock, LaidOutFormulaBlock, LaidOutTableBlock, LaidOutSeparator {

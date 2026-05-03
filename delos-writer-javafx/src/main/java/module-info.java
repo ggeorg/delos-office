@@ -10,5 +10,4 @@ module io.github.ggeorg.delos.writer.javafx {
     exports io.github.ggeorg.delos.writer.ui;
     exports io.github.ggeorg.delos.writer.ui.command;
     exports io.github.ggeorg.delos.writer.ui.control;
-    exports io.github.ggeorg.delos.writer.ui.ruler;
 }

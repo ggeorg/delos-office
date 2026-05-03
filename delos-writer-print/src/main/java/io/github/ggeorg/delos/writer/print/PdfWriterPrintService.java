@@ -56,6 +56,13 @@ public final class PdfWriterPrintService {
         printTemporaryPdf(safeOptions, pdf -> pdfService.export(document, pdf));
     }
 
+    public void print(Document document, LaidOutDocument layout, PdfPrintOptions options) throws IOException, PrinterException {
+        Objects.requireNonNull(document, "document");
+        Objects.requireNonNull(layout, "layout");
+        PdfPrintOptions safeOptions = options == null ? PdfPrintOptions.defaultOptions() : options;
+        printTemporaryPdf(safeOptions, pdf -> pdfService.exportLayout(document, layout, pdf));
+    }
+
     public void print(LaidOutDocument document) throws IOException, PrinterException {
         print(document, PdfPrintOptions.defaultOptions());
     }

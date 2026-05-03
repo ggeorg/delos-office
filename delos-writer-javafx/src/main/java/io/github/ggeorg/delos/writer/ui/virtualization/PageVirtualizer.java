@@ -6,6 +6,8 @@ import io.github.ggeorg.delos.writer.render.PageRenderer;
 import io.github.ggeorg.delos.writer.ui.PageView;
 import io.github.ggeorg.delos.writer.ui.ViewTheme;
 import io.github.ggeorg.delos.writer.ui.geometry.PageGeometryIndex;
+import io.github.ggeorg.delos.render.RenderTextMeasurer;
+import io.github.ggeorg.delos.writer.render.fx.JavaFxRenderTextMeasurer;
 import javafx.geometry.BoundingBox;
 import javafx.geometry.Bounds;
 import javafx.scene.layout.Region;
@@ -37,12 +39,24 @@ public final class PageVirtualizer extends Region {
     private Bounds visibleViewportInContent = new BoundingBox(0.0, 0.0, 1.0, 1.0);
 
     public PageVirtualizer(ViewTheme theme, PageRenderer pageRenderer) {
-        this(theme, pageRenderer, new PageVirtualizerMetrics());
+        this(theme, pageRenderer, new JavaFxRenderTextMeasurer(), new PageVirtualizerMetrics());
     }
 
     public PageVirtualizer(ViewTheme theme, PageRenderer pageRenderer, PageVirtualizerMetrics metrics) {
+        this(theme, pageRenderer, new JavaFxRenderTextMeasurer(), metrics);
+    }
+
+    public PageVirtualizer(ViewTheme theme, PageRenderer pageRenderer, RenderTextMeasurer renderTextMeasurer) {
+        this(theme, pageRenderer, renderTextMeasurer, new PageVirtualizerMetrics());
+    }
+
+    public PageVirtualizer(ViewTheme theme, PageRenderer pageRenderer, RenderTextMeasurer renderTextMeasurer, PageVirtualizerMetrics metrics) {
         this.theme = Objects.requireNonNull(theme, "theme");
-        this.pageViewPool = new PageViewPool(theme, Objects.requireNonNull(pageRenderer, "pageRenderer"));
+        this.pageViewPool = new PageViewPool(
+                theme,
+                Objects.requireNonNull(pageRenderer, "pageRenderer"),
+                renderTextMeasurer
+        );
         this.metrics = Objects.requireNonNull(metrics, "metrics");
         setManaged(true);
     }

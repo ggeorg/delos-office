@@ -20,13 +20,10 @@ import java.util.function.Supplier;
 /**
  * Handles JavaFX input-method events for pre-edit/composition text.
  *
- * <p>The important RichTextFX lesson is that JavaFX input composition expects a
- * real text range to exist in the editable control. Earlier Delos H35 tried to
- * keep composed text only as an overlay. That is elegant, but it breaks some
- * platform keyboards/dead-key flows, including Greek tonos on macOS. This
- * controller therefore follows the RichTextFX shape: keep track of the current
- * composed range, replace that range on each input-method event, and only then
- * place the caret inside the composed range when requested by the platform.</p>
+ * <p>JavaFX input composition expects a real text range to exist in the editable
+ * control. This controller keeps track of the current composed range, replaces
+ * that range on each input-method event, and then places the caret inside the
+ * composed range when requested by the platform.</p>
  */
 public final class InputMethodController {
     private final EditorInteractionModel interactionModel;

@@ -11,37 +11,30 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 final class WriterInspectorPaneContractTest {
     @Test
-    void writerInspectorUsesSharedShellWithPagesStyleTabs() throws IOException {
-        String source = Files.readString(Path.of("src/main/java/io/github/ggeorg/delos/writer/app/WriterInspectorPane.java"));
+    void writerInspectorUsesActiveSharedShellAndWriterOwnedPanels() throws IOException {
+        String source = Files.readString(Path.of("src/main/java/io/github/ggeorg/delos/writer/app/inspector/WriterInspectorPane.java"));
 
         assertTrue(source.contains("extends DelosInspector"));
-        assertTrue(source.contains("new InspectorTab(\"document\", \"Document\""));
-        assertTrue(source.contains("new InspectorTab(\"format\", \"Format\""));
-        assertTrue(source.contains("new InspectorTab(\"arrange\", \"Arrange\""));
-        assertTrue(source.contains("new InspectorSection(\"Page Setup\""));
-        assertTrue(source.contains("new InspectorSection(\"Text\""));
-        assertTrue(source.contains("new InspectorSection(\"Paragraph\""));
-        assertTrue(source.contains("new InspectorSection(\"Lists\""));
-        assertTrue(source.contains("new InspectorSection(\"Image\""));
-        assertTrue(source.contains("new InspectorSection(\"Table\""));
-        assertTrue(source.contains("SegmentedControl"));
-        assertTrue(source.contains("new SegmentedOption(\"style\", \"Style\")"));
-        assertTrue(source.contains("new SegmentedOption(\"layout\", \"Layout\")"));
-        assertTrue(source.contains("new SegmentedOption(\"more\", \"More\")"));
-        assertTrue(source.contains("new InspectorSection(\"Pagination\""));
+        assertTrue(source.contains("addTab(\"style\", \"Style\""));
+        assertTrue(source.contains("addTab(\"layout\", \"Layout\""));
+        assertTrue(source.contains("addTab(\"document\", \"Document\""));
+        assertTrue(source.contains("new WriterPageSetupInspector(session, editor)"));
+        assertTrue(source.contains("new WriterTextFormatInspector(editor, commandRegistry)"));
+        assertTrue(source.contains("new WriterImageInspector(editor, commandRegistry)"));
+        assertTrue(source.contains("new WriterTableInspector(editor, commandRegistry)"));
+        assertTrue(source.contains("setInspectorVisible"));
+        assertFalse(source.contains("io.github.ggeorg.delos.javafx.chrome"));
     }
 
     @Test
     void documentInspectorMutatesDocumentModelThroughPageSetupNotPrinterOrSnapshots() throws IOException {
-        String source = Files.readString(Path.of("src/main/java/io/github/ggeorg/delos/writer/app/WriterInspectorPane.java"));
+        String source = Files.readString(Path.of("src/main/java/io/github/ggeorg/delos/writer/app/inspector/WriterPageSetupInspector.java"));
 
-        assertTrue(source.contains("PageSetup"));
-        assertTrue(source.contains("PageSize"));
-        assertTrue(source.contains("PageMargins"));
-        assertTrue(source.contains("PageOrientation"));
-        assertTrue(source.contains("session.execute(new PageStyleCommand"));
+        assertTrue(source.contains("PageStyle"));
+        assertTrue(source.contains("session.execute(new EditCommand"));
         assertTrue(source.contains("editor.reloadDocument()"));
-        assertTrue(source.contains("oldDocument.withPageStyle"));
+        assertTrue(source.contains("DocumentEdit"));
+        assertTrue(source.contains("Margins are shown in centimeters"));
         assertFalse(source.contains("PrinterJob"));
         assertFalse(source.contains("PDFPageable"));
         assertFalse(source.contains("createLayoutSnapshot"));

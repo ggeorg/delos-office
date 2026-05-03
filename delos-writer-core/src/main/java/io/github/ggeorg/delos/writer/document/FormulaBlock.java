@@ -3,12 +3,11 @@ package io.github.ggeorg.delos.writer.document;
 import java.util.Objects;
 
 /**
- * Block-level formula stored as editable source, not as a generated image.
+ * Block-level formula/equation source.
  *
- * <p>v65 keeps formulas deliberately source-first. Rendering uses a conservative
- * placeholder, while the canonical document content remains the formula source
- * itself so future renderers can target SVG, PDF, MathML, or a native Delos math
- * layout engine without changing the document model.</p>
+ * <p>Formulas are source-first. Rendering may use a conservative fallback until
+ * a full math layout engine is attached, while the document model stores the
+ * canonical formula text and source format.</p>
  */
 public record FormulaBlock(FormulaSourceFormat sourceFormat, String source, String altText) implements Block {
     public FormulaBlock(String source) {

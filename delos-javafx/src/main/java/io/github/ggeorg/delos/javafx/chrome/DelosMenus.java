@@ -20,7 +20,11 @@ public final class DelosMenus {
         if (appStyleClass != null && !appStyleClass.isBlank()) {
             menuBar.getStyleClass().add(appStyleClass);
         }
-        menuBar.setUseSystemMenuBar(true);
+        menuBar.setUseSystemMenuBar(isMacOs());
+    }
+
+    private static boolean isMacOs() {
+        return System.getProperty("os.name", "").toLowerCase(java.util.Locale.ROOT).contains("mac");
     }
 
     public static MenuItem item(CommandRegistry commandRegistry, String commandId) {

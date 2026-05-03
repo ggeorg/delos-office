@@ -17,7 +17,7 @@ final class WriterMenuBarContractTest {
     void menuBarUsesCommandBackedTraditionalWordProcessorMenus() throws IOException {
         String source = Files.readString(MENU_BAR);
 
-        assertTrue(source.contains("setUseSystemMenuBar(true)"));
+        assertTrue(source.contains("DelosMenus.configure"));
         assertTrue(source.contains("exportMenu()"));
         assertTrue(source.contains("textMenu()"));
         assertTrue(source.contains("paragraphMenu()"));

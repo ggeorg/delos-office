@@ -13,12 +13,11 @@ final class WriterChromeAndZoomContractTest {
     void chromeRefreshOwnsStatusCommandChromeAndStageTitle() throws IOException {
         String source = Files.readString(Path.of("src/main/java/io/github/ggeorg/delos/writer/app/WriterChromeController.java"));
 
-        assertTrue(source.contains("statusBar.setWordCount(StatusBar.countWords(session.document()))"));
-        assertTrue(source.contains("statusBar.setPageInfo(editor.currentPageNumber(), editor.totalPageCount())"));
-        assertTrue(source.contains("statusBar.setZoomFactor(editor.zoom())"));
-        assertTrue(source.contains("menuBar.refreshFromCommands()"));
+        assertTrue(source.contains("canvasBadge.update(editor.currentPageNumber(), editor.totalPageCount(), session.document())"));
+                assertTrue(source.contains("menuBar.refreshFromCommands()"));
         assertTrue(source.contains("toolBar.refreshFromCommands()"));
         assertTrue(source.contains("session.isDirty() ? \" *\" : \"\""));
+        assertTrue(source.contains("+ \" — Delos Writer\""));
     }
 
     @Test

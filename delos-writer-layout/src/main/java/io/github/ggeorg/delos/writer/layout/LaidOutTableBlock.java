@@ -6,9 +6,10 @@ import java.util.Objects;
 /**
  * Positioned table block.
  *
- * <p>v1 keeps tables deliberately simple: no merged cells and no row splitting
- * across pages yet. The block still carries model-derived style flags so render
- * and PDF paths consume the document model, not editor-only state.</p>
+ * <p>Tables are still row-fragmented in this version: a row is not split across
+ * pages. When a row is taller than the usable page body, the containing fragment
+ * is marked as vertically overflowing so renderers, diagnostics, and later table
+ * work can distinguish a controlled overflow from normal pagination.</p>
  */
 public record LaidOutTableBlock(
         int sourceBlockIndex,
@@ -17,14 +18,27 @@ public record LaidOutTableBlock(
         double width,
         double height,
         List<LaidOutTableRow> rows,
-        boolean bordersEnabled
+        boolean bordersEnabled,
+        boolean verticallyOverflowing
 ) implements LaidOutAtomicBlock {
     public LaidOutTableBlock(double x, double y, double width, double height, List<LaidOutTableRow> rows) {
-        this(-1, x, y, width, height, rows, true);
+        this(-1, x, y, width, height, rows, true, false);
     }
 
     public LaidOutTableBlock(int sourceBlockIndex, double x, double y, double width, double height, List<LaidOutTableRow> rows) {
-        this(sourceBlockIndex, x, y, width, height, rows, true);
+        this(sourceBlockIndex, x, y, width, height, rows, true, false);
+    }
+
+    public LaidOutTableBlock(
+            int sourceBlockIndex,
+            double x,
+            double y,
+            double width,
+            double height,
+            List<LaidOutTableRow> rows,
+            boolean bordersEnabled
+    ) {
+        this(sourceBlockIndex, x, y, width, height, rows, bordersEnabled, false);
     }
 
     public LaidOutTableBlock {
@@ -41,8 +55,12 @@ public record LaidOutTableBlock(
         return rows.isEmpty() ? 0 : rows.getFirst().cells().size();
     }
 
+    public boolean hasVerticalOverflow() {
+        return verticallyOverflowing;
+    }
+
     @Override
     public LaidOutTableBlock withY(double y) {
-        return new LaidOutTableBlock(sourceBlockIndex, x, y, width, height, rows, bordersEnabled);
+        return new LaidOutTableBlock(sourceBlockIndex, x, y, width, height, rows, bordersEnabled, verticallyOverflowing);
     }
 }

@@ -30,7 +30,11 @@ public final class PageView extends Region {
     private boolean dirty = true;
 
     public PageView(LaidOutPage page, ViewTheme theme, PageRenderer renderer) {
-        this(page, theme, renderer, new PageHitTester());
+        this(page, theme, renderer, new JavaFxRenderTextMeasurer());
+    }
+
+    public PageView(LaidOutPage page, ViewTheme theme, PageRenderer renderer, RenderTextMeasurer renderTextMeasurer) {
+        this(page, theme, renderer, new PageHitTester(), renderTextMeasurer);
     }
 
     public PageView(
@@ -39,11 +43,21 @@ public final class PageView extends Region {
             PageRenderer renderer,
             PageHitTester hitTester
     ) {
+        this(page, theme, renderer, hitTester, new JavaFxRenderTextMeasurer());
+    }
+
+    public PageView(
+            LaidOutPage page,
+            ViewTheme theme,
+            PageRenderer renderer,
+            PageHitTester hitTester,
+            RenderTextMeasurer renderTextMeasurer
+    ) {
         this.page = page;
         this.theme = theme;
         this.renderer = renderer;
         this.hitTester = hitTester;
-        this.renderTextMeasurer = new JavaFxRenderTextMeasurer();
+        this.renderTextMeasurer = renderTextMeasurer == null ? new JavaFxRenderTextMeasurer() : renderTextMeasurer;
         this.canvas = new Canvas();
         this.renderTarget = new JavaFxRenderTarget(canvas.getGraphicsContext2D());
         getChildren().add(canvas);

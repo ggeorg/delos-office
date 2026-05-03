@@ -27,6 +27,8 @@ import io.github.ggeorg.delos.writer.document.TextPosition;
 import io.github.ggeorg.delos.writer.render.DefaultPageRenderer;
 import io.github.ggeorg.delos.writer.render.fx.JavaFxTextMeasurer;
 import io.github.ggeorg.delos.writer.render.PageRenderer;
+import io.github.ggeorg.delos.render.RenderTextMeasurer;
+import io.github.ggeorg.delos.writer.render.fx.JavaFxRenderTextMeasurer;
 import io.github.ggeorg.delos.writer.render.CompositionTextState;
 import io.github.ggeorg.delos.writer.ui.virtualization.PageVirtualizer;
 import javafx.animation.KeyFrame;
@@ -67,15 +69,31 @@ public final class DocumentViewport extends Region {
     private boolean caretVisible;
 
     public DocumentViewport(EditorSession session) {
-        this(session, ViewTheme.defaultTheme(), new PaginatingDocumentLayoutEngine(new KnuthPlassParagraphLayouter(new JavaFxTextMeasurer())), new DefaultPageRenderer());
+        this(
+                session,
+                ViewTheme.defaultTheme(),
+                new PaginatingDocumentLayoutEngine(new KnuthPlassParagraphLayouter(new JavaFxTextMeasurer())),
+                new DefaultPageRenderer(),
+                new JavaFxRenderTextMeasurer()
+        );
     }
 
     public DocumentViewport(EditorSession session, ViewTheme theme, DocumentLayoutEngine layoutEngine, PageRenderer pageRenderer) {
+        this(session, theme, layoutEngine, pageRenderer, new JavaFxRenderTextMeasurer());
+    }
+
+    public DocumentViewport(
+            EditorSession session,
+            ViewTheme theme,
+            DocumentLayoutEngine layoutEngine,
+            PageRenderer pageRenderer,
+            RenderTextMeasurer renderTextMeasurer
+    ) {
         this.session = session;
         this.theme = theme;
         this.layoutEngine = layoutEngine;
         this.pageRenderer = pageRenderer;
-        this.pageVirtualizer = new PageVirtualizer(theme, pageRenderer);
+        this.pageVirtualizer = new PageVirtualizer(theme, pageRenderer, renderTextMeasurer);
         this.interactionModel = new EditorInteractionModel();
         this.caretLocator = new CaretLocator();
         this.navigator = new DocumentPositionNavigator();

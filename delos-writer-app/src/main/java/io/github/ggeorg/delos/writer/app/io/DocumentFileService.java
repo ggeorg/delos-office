@@ -43,11 +43,8 @@ public final class DocumentFileService {
         if (target == null) {
             return null;
         }
-        Path normalizedTarget = normalizeExtension(target, ".html");
-        Path parent = normalizedTarget.toAbsolutePath().getParent();
-        if (parent != null) {
-            Files.createDirectories(parent);
-        }
+        Path normalizedTarget = WriterFileChoosers.normalizeExtension(target, ".html");
+        WriterFileChoosers.ensureParentDirectory(normalizedTarget);
         try (OutputStream outputStream = Files.newOutputStream(normalizedTarget)) {
             htmlExporter.write(document, outputStream);
         }
@@ -60,11 +57,8 @@ public final class DocumentFileService {
         if (target == null) {
             return null;
         }
-        Path normalizedTarget = normalizeExtension(target, ".md");
-        Path parent = normalizedTarget.toAbsolutePath().getParent();
-        if (parent != null) {
-            Files.createDirectories(parent);
-        }
+        Path normalizedTarget = WriterFileChoosers.normalizeExtension(target, ".md");
+        WriterFileChoosers.ensureParentDirectory(normalizedTarget);
         try (OutputStream outputStream = Files.newOutputStream(normalizedTarget)) {
             markdownExporter.write(document, outputStream);
         }
@@ -75,54 +69,13 @@ public final class DocumentFileService {
         FileChooser chooser = new FileChooser();
         chooser.setTitle(dialogTitle);
         chooser.getExtensionFilters().add(filter);
-        configureInitialLocation(chooser, currentFile);
-        String candidateName = sanitizeFileName(exportBaseName(currentFile, documentTitle));
-        chooser.setInitialFileName(toDisplayFileName(candidateName, extension));
+        WriterFileChoosers.configureInitialLocation(chooser, currentFile);
+        String candidateName = WriterFileChoosers.sanitizeFileName(
+                WriterFileChoosers.suggestedBaseName(currentFile, documentTitle)
+        );
+        chooser.setInitialFileName(WriterFileChoosers.stripExtensionForDisplay(candidateName, extension));
         var file = chooser.showSaveDialog(owner);
         return file == null ? null : file.toPath();
     }
 
-    private static void configureInitialLocation(FileChooser chooser, Path path) {
-        if (path == null) {
-            return;
-        }
-        Path absolute = path.toAbsolutePath();
-        Path parent = Files.isDirectory(absolute) ? absolute : absolute.getParent();
-        if (parent != null && Files.isDirectory(parent)) {
-            chooser.setInitialDirectory(parent.toFile());
-        }
-    }
-
-    private static String toDisplayFileName(String candidateName, String extension) {
-        if (candidateName.endsWith(extension)) {
-            return candidateName.substring(0, candidateName.length() - extension.length());
-        }
-        return candidateName;
-    }
-
-    private static Path normalizeExtension(Path path, String extension) {
-        String filename = path.getFileName().toString();
-        if (filename.endsWith(extension)) {
-            return path;
-        }
-        return path.resolveSibling(filename + extension);
-    }
-
-    private static String exportBaseName(Path currentFile, String documentTitle) {
-        if (currentFile != null) {
-            String filename = currentFile.getFileName().toString();
-            int extensionIndex = filename.lastIndexOf('.');
-            if (extensionIndex > 0) {
-                return filename.substring(0, extensionIndex);
-            }
-            return filename;
-        }
-        return documentTitle;
-    }
-
-    private static String sanitizeFileName(String value) {
-        String candidate = value == null || value.isBlank() ? "Untitled" : value.trim();
-        candidate = candidate.replaceAll("[\\\\/:*?\"<>|]", "-");
-        return candidate.isBlank() ? "Untitled" : candidate;
-    }
 }

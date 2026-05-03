@@ -20,10 +20,10 @@ final class WriterInspectorContractTest {
         assertTrue(mainWindow.contains("private boolean inspectorVisible = true"));
         assertTrue(mainWindow.contains("inspector.setManaged(inspectorVisible)"));
         assertTrue(writerInspector.contains("extends DelosInspector"));
+        assertTrue(writerInspector.contains("addTab(\"style\""));
+        assertTrue(writerInspector.contains("addTab(\"layout\""));
         assertTrue(writerInspector.contains("addTab(\"document\""));
-        assertTrue(writerInspector.contains("addTab(\"format\""));
-        assertTrue(writerInspector.contains("addTab(\"arrange\""));
-        assertTrue(sharedInspector.contains("DEFAULT_WIDTH = 320.0"));
+        assertTrue(sharedInspector.contains("DEFAULT_WIDTH = 300.0"));
         assertFalse(mainWindow.contains("inspectorSlot"), "fixed visible width replaced the rejected slot idea");
     }
 

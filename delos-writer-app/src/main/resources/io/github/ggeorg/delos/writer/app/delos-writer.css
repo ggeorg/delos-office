@@ -4,94 +4,126 @@
     -fx-background-color: #eef2f6;
 }
 
-.main-window {
+.main-window,
+.editor-stack,
+.writer-window-shell,
+.writer-document-shell {
     -fx-background-color: #eef2f6;
 }
 
-.title-bar {
-    -fx-alignment: center-left;
+.writer-app-chrome,
+.writer-document-header,
+.writer-menu-bar,
+.writer-toolbar {
     -fx-background-color: #f8fafc;
+}
+
+.writer-app-chrome {
     -fx-border-color: #d9e0ea;
     -fx-border-width: 0 0 1 0;
-    -fx-pref-height: 32;
-    -fx-max-height: 32;
 }
 
-.hamburger-menu {
-    -fx-background-color: transparent;
-    -fx-border-color: transparent;
-    -fx-padding: 4 8;
-    -fx-font-size: 16px;
-    -fx-text-fill: #334155;
+.writer-document-header {
+    -fx-background-color: #f8fafc;
+    -fx-border-color: #e2e8f0;
+    -fx-border-width: 0 0 1 0;
+    -fx-padding: 0 14 0 14;
 }
 
-.hamburger-menu:hover,
-.titlebar-action-button:hover {
-    -fx-background-color: #e8ecf2;
-    -fx-background-radius: 6;
+.writer-document-header-title-box {
+    -fx-alignment: center-left;
 }
 
-.app-name {
+.writer-document-header-brand {
     -fx-font-size: 13px;
-    -fx-font-weight: 600;
-    -fx-text-fill: #475569;
+    -fx-font-weight: 700;
+    -fx-text-fill: #64748b;
 }
 
-.document-title {
+.writer-document-header-title {
     -fx-font-size: 13px;
-    -fx-font-weight: 400;
     -fx-text-fill: #1e293b;
 }
 
-.document-title-editor {
-    -fx-background-color: #ffffff;
-    -fx-background-radius: 6;
-    -fx-border-color: #cbd5e1;
-    -fx-border-radius: 6;
-    -fx-padding: 4 8;
-    -fx-font-size: 13px;
+.writer-document-header-actions {
+    -fx-alignment: center-right;
 }
 
-.dirty-indicator {
-    -fx-text-fill: #94a3b8;
-    -fx-font-size: 13px;
-    -fx-font-weight: 700;
-}
-
-.titlebar-action-button {
+.writer-document-header-button {
     -fx-background-color: transparent;
+    -fx-background-radius: 8;
     -fx-border-color: transparent;
-    -fx-padding: 4 8;
+    -fx-border-radius: 8;
+    -fx-padding: 4;
+}
+
+.writer-document-header-button:hover {
+    -fx-background-color: #eef2f7;
+}
+
+.writer-document-header-button:selected {
+    -fx-background-color: #eaf1fb;
+    -fx-border-color: #c9d8ef;
+}
+
+.writer-toolbar {
+    -fx-background-color: #f1f5f9;
+    -fx-border-color: #e2e8f0;
+    -fx-border-width: 0 0 1 0;
+    -fx-spacing: 8;
+}
+
+.writer-toolbar-button {
+    -fx-background-color: #ffffff;
+    -fx-background-radius: 9;
+    -fx-border-color: #d3dce8;
+    -fx-border-radius: 9;
+    -fx-padding: 5;
     -fx-text-fill: #334155;
+    -fx-font-size: 13px;
 }
 
-.titlebar-action-button:selected,
-.inspector-toggle:selected {
-    -fx-background-color: #dbeafe;
+.writer-toolbar-button:hover {
+    -fx-background-color: #ffffff;
+    -fx-border-color: #93c5fd;
+}
+
+.writer-toolbar-button:selected {
+    -fx-background-color: #eaf1fb;
+    -fx-border-color: #93c5fd;
     -fx-text-fill: #1d4ed8;
-    -fx-background-radius: 6;
 }
 
-.titlebar-action-button:disabled {
-    -fx-opacity: 0.45;
+.writer-toolbar-button:disabled,
+.writer-toolbar-combo:disabled,
+.writer-toolbar-size-combo:disabled,
+.writer-toolbar-zoom-combo:disabled {
+    -fx-opacity: 0.50;
 }
 
-.editor-stack {
-    -fx-background-color: #eef2f6;
+
+.writer-toolbar-combo {
+    -fx-pref-width: 112;
+    -fx-font-size: 13px;
 }
 
-.editor-shell {
+.writer-toolbar-size-combo {
+    -fx-pref-width: 64;
+    -fx-font-size: 13px;
+}
+
+.writer-toolbar-zoom-combo {
+    -fx-pref-width: 82;
+    -fx-font-size: 12px;
+}
+
+.overlay-layer,
+.writer-text-format-inspector,
+.writer-format-inspector,
+.writer-image-inspector,
+.writer-page-setup-inspector,
+.writer-table-inspector {
     -fx-background-color: transparent;
-}
-
-.overlay-layer {
-    -fx-background-color: transparent;
-}
-
-.editor-scroll {
-    -fx-background: #eef2f6;
-    -fx-background-color: #eef2f6;
-    -fx-padding: 0;
 }
 
 .status-bar {
@@ -108,10 +140,10 @@
     -fx-font-size: 11px;
 }
 
-.status-zoom {
+.status-zoom,
+.status-zoom-box {
     -fx-text-fill: #475569;
 }
-
 
 .command-palette {
     -fx-background-color: #ffffff;
@@ -160,166 +192,14 @@
     -fx-text-fill: #1e293b;
 }
 
-.palette-item-shortcut {
+.palette-item-shortcut,
+.palette-count {
     -fx-font-size: 11px;
     -fx-text-fill: #94a3b8;
 }
 
 .palette-count {
-    -fx-font-size: 11px;
-    -fx-text-fill: #94a3b8;
     -fx-padding: 2 8;
-}
-
-.delos-editor {
-    -fx-background-color: transparent;
-}
-
-.workspace-switcher {
-    -fx-background-color: #eef2f6;
-}
-
-.workspace-switch-button {
-    -fx-background-color: #f8fafc;
-    -fx-background-radius: 8;
-    -fx-border-color: #cbd5e1;
-    -fx-border-radius: 8;
-    -fx-padding: 5 12;
-    -fx-text-fill: #334155;
-    -fx-font-size: 12px;
-}
-
-.workspace-switch-button:selected {
-    -fx-background-color: #dbeafe;
-    -fx-border-color: #93c5fd;
-    -fx-text-fill: #1d4ed8;
-}
-
-.workspace-content {
-    -fx-background-color: transparent;
-}
-
-.delos-spreadsheet {
-    -fx-background-color: #eef2f6;
-    -fx-padding: 20;
-}
-
-.delos-spreadsheet-scroll-pane {
-    -fx-background: #eef2f6;
-    -fx-background-color: #eef2f6;
-}
-
-.delos-spreadsheet-grid {
-    -fx-background-color: #ffffff;
-}
-
-.delos-spreadsheet-header {
-    -fx-background-color: #f1f5f9;
-    -fx-text-fill: #475569;
-    -fx-font-size: 11px;
-    -fx-font-weight: 600;
-}
-
-.delos-spreadsheet-cell {
-    -fx-background-color: #ffffff;
-    -fx-border-color: transparent;
-    -fx-padding: 4 6;
-    -fx-font-size: 12px;
-}
-
-.delos-spreadsheet-cell:focused {
-    -fx-background-color: #eff6ff;
-}
-
-.writer-top-chrome {
-    -fx-background-color: #f8fafc;
-    -fx-border-color: #d9e0ea;
-    -fx-border-width: 0 0 1 0;
-}
-
-.writer-menu-bar {
-    -fx-background-color: #f8fafc;
-}
-
-.writer-toolbar {
-    -fx-background-color: #f8fafc;
-    -fx-border-color: #e2e8f0;
-    -fx-border-width: 1 0 0 0;
-    -fx-spacing: 6;
-}
-
-.writer-toolbar-button {
-    -fx-background-color: transparent;
-    -fx-background-radius: 6;
-    -fx-border-color: transparent;
-    -fx-padding: 5 9;
-    -fx-text-fill: #1e293b;
-    -fx-font-size: 13px;
-}
-
-.writer-toolbar-button:hover {
-    -fx-background-color: #e8ecf2;
-}
-
-.writer-toolbar-button:selected {
-    -fx-background-color: #dbeafe;
-    -fx-text-fill: #1d4ed8;
-}
-
-.writer-toolbar-button:disabled,
-.writer-toolbar-combo:disabled,
-.writer-toolbar-size-combo:disabled {
-    -fx-opacity: 0.50;
-}
-
-.writer-toolbar-combo {
-    -fx-pref-width: 112;
-    -fx-font-size: 13px;
-}
-
-.writer-toolbar-size-combo {
-    -fx-pref-width: 64;
-    -fx-font-size: 13px;
-}
-
-.horizontal-ruler {
-    -fx-background-color: #f8fafc;
-    -fx-border-color: #e2e8f0;
-    -fx-border-width: 1 0 0 0;
-}
-
-.writer-toolbar-zoom-combo {
-    -fx-pref-width: 76;
-    -fx-font-size: 13px;
-}
-
-.writer-document-view,
-.writer-document-view-skin,
-.writer-document-editor-row {
-    -fx-background-color: #eef2f6;
-}
-
-.writer-document-ruler-row {
-    -fx-background-color: #f8fafc;
-}
-
-.vertical-ruler,
-.corner-ruler-cell {
-    -fx-background-color: #f8fafc;
-    -fx-border-color: #e2e8f0;
-}
-
-.vertical-ruler {
-    -fx-border-width: 0 1 0 0;
-}
-
-.corner-ruler-cell {
-    -fx-border-width: 1 1 0 0;
-}
-
-.writer-window-shell,
-.writer-document-shell {
-    -fx-background-color: #eef2f6;
 }
 
 /* Keep the inspector as a normal layout sibling. Do not give it a leftward
@@ -330,21 +210,14 @@
     -fx-effect: null;
 }
 
-.writer-text-format-inspector {
-    -fx-background-color: transparent;
-}
-
-
-.writer-format-inspector,
-.writer-image-inspector {
-    -fx-background-color: transparent;
-}
-
-.delos-inspector-action-row {
+.delos-inspector-action-row,
+.delos-inspector-command-strip,
+.delos-inspector-length-input {
     -fx-alignment: center-left;
 }
 
-.delos-inspector-action-button {
+.delos-inspector-action-button,
+.danger-button {
     -fx-background-color: #ffffff;
     -fx-background-radius: 7;
     -fx-border-color: #cbd5e1;
@@ -358,6 +231,14 @@
     -fx-background-color: #f1f5f9;
 }
 
+.danger-button {
+    -fx-text-fill: #b91c1c;
+}
+
+.danger-button:hover {
+    -fx-background-color: #fee2e2;
+}
+
 .delos-inspector-action-button:disabled,
 .delos-inspector-number-field:disabled,
 .delos-inspector-text-field:disabled,
@@ -367,39 +248,963 @@
 
 .delos-inspector-number-field,
 .delos-inspector-text-field,
-.delos-inspector-check {
+.delos-inspector-check,
+.delos-inspector-unit-label {
     -fx-font-size: 13px;
 }
 
-/* v117.5: only the document editor ScrollPane gets the larger scrollbar.
-   Do not style the inspector scrollbar here. */
-.editor-scroll .scroll-bar:vertical {
-    -fx-min-width: 14px;
-    -fx-pref-width: 14px;
-    -fx-padding: 0 2 0 2;
+.delos-inspector-help-text,
+.delos-inspector-unit-label {
+    -fx-text-fill: #64748b;
 }
 
-.editor-scroll .scroll-bar:horizontal {
-    -fx-min-height: 14px;
-    -fx-pref-height: 14px;
-    -fx-padding: 2 0 2 0;
+.delos-inspector-help-text {
+    -fx-font-size: 11px;
+    -fx-wrap-text: true;
 }
 
-.editor-scroll .scroll-bar .track {
-    -fx-background-color: #e2e8f0;
+.editor-context-menu {
+    -fx-font-size: 13px;
+}
+
+.writer-canvas-badge-host {
+    -fx-background-color: transparent;
+    -fx-spacing: 8;
+}
+
+.writer-canvas-badge {
+    -fx-background-color: rgba(15, 23, 42, 0.68);
+    -fx-background-radius: 999;
+    -fx-padding: 7 15 7 15;
+    -fx-text-fill: #ffffff;
+    -fx-font-size: 12px;
+    -fx-effect: dropshadow(gaussian, rgba(15,23,42,0.24), 18, 0.0, 0, 8);
+}
+
+.writer-statistics-popover {
+    -fx-background-color: #ffffff;
+    -fx-background-radius: 14;
+    -fx-border-color: #cbd5e1;
+    -fx-border-radius: 14;
+    -fx-border-width: 1;
+    -fx-padding: 12;
+    -fx-effect: dropshadow(gaussian, rgba(15,23,42,0.22), 36, 0.0, 0, 14);
+}
+
+.writer-statistics-label {
+    -fx-font-size: 13px;
+    -fx-font-weight: 600;
+    -fx-text-fill: #1e293b;
+}
+
+.writer-statistics-value {
+    -fx-font-size: 13px;
+    -fx-text-fill: #334155;
+}
+
+
+/* UX-3a visual polish: match the v4.1 mockup chrome while preserving behavior. */
+.writer-toolbar .combo-box-base,
+.writer-toolbar-zoom-combo {
+    -fx-background-color: #ffffff;
     -fx-background-radius: 8;
+    -fx-border-color: #cbd5e1;
+    -fx-border-radius: 8;
+    -fx-min-height: 28px;
+    -fx-pref-height: 28px;
+}
+
+.writer-document-header .delos-icon,
+.writer-toolbar .delos-icon {
+    -fx-icon-color: #334155;
+}
+
+.writer-document-header-button:selected .delos-icon,
+.writer-toolbar-button:selected .delos-icon {
+    -fx-icon-color: #1d4ed8;
+}
+
+.writer-canvas-badge:hover {
+    -fx-background-color: rgba(15, 23, 42, 0.78);
+}
+
+/* UX-4a Pages-like top chrome: the document title now lives in the native
+   stage title; the in-window document header is no longer mounted. */
+.writer-toolbar {
+    -fx-background-color: #f8fafc;
+    -fx-min-height: 54px;
+    -fx-pref-height: 54px;
+    -fx-padding: 8 14 8 14;
+    -fx-spacing: 10;
+}
+
+.writer-toolbar-spacer {
+    -fx-min-width: 24px;
+    -fx-pref-width: 24px;
+}
+
+.writer-toolbar-menu-button {
+    -fx-background-color: #ffffff;
+    -fx-background-radius: 9;
+    -fx-border-color: #d3dce8;
+    -fx-border-radius: 9;
+    -fx-padding: 5 10 5 10;
+    -fx-text-fill: #1e293b;
+    -fx-font-size: 13px;
+}
+
+.writer-toolbar-menu-button:hover {
+    -fx-background-color: #ffffff;
+    -fx-border-color: #93c5fd;
+}
+
+.writer-toolbar-menu-button:showing,
+.writer-toolbar-menu-button:focused {
+    -fx-background-color: #eaf1fb;
+    -fx-border-color: #93c5fd;
+}
+
+.writer-toolbar-inspector-mode {
+    -fx-pref-width: 112px;
+}
+
+.writer-toolbar-share-button {
+    -fx-pref-width: 118px;
+}
+
+.writer-toolbar-menu-button .delos-icon,
+.writer-toolbar-button .delos-icon {
+    -fx-icon-color: #334155;
+}
+
+.writer-toolbar-menu-button:showing .delos-icon,
+.writer-toolbar-menu-button:focused .delos-icon,
+.writer-toolbar-button:selected .delos-icon {
+    -fx-icon-color: #1d4ed8;
+}
+
+/* UX-4b Pages-like toolbar arrangement.
+   The toolbar is a normal JavaFX row below the native title bar, not a custom
+   title bar. Controls are icon-only after the filename and are visually grouped
+   with soft pill containers. */
+.writer-app-chrome {
+    -fx-background-color: #f8fafc;
+    -fx-border-color: #d9e0ea;
+    -fx-border-width: 0 0 1 0;
+}
+
+.writer-toolbar {
+    -fx-background-color: #f8fafc;
+    -fx-min-height: 58px;
+    -fx-pref-height: 58px;
+    -fx-padding: 8 18 8 18;
+    -fx-spacing: 12;
+}
+
+.writer-toolbar-spacer {
+    -fx-min-width: 32px;
+    -fx-pref-width: 32px;
+}
+
+.writer-toolbar-button,
+.writer-toolbar-local-button,
+.writer-toolbar-icon-menu-button {
+    -fx-background-color: #ffffff;
+    -fx-background-radius: 11;
+    -fx-border-color: #d3dce8;
+    -fx-border-radius: 11;
+    -fx-padding: 7;
+    -fx-text-fill: #1e293b;
+    -fx-font-size: 13px;
+    -fx-effect: dropshadow(gaussian, rgba(15,23,42,0.08), 10, 0.0, 0, 2);
+}
+
+.writer-toolbar-button:hover,
+.writer-toolbar-local-button:hover,
+.writer-toolbar-icon-menu-button:hover {
+    -fx-background-color: #ffffff;
+    -fx-border-color: #93c5fd;
+}
+
+.writer-toolbar-button:selected,
+.writer-toolbar-icon-menu-button:showing,
+.writer-toolbar-icon-menu-button:focused {
+    -fx-background-color: #eaf1fb;
+    -fx-border-color: #93c5fd;
+    -fx-text-fill: #1d4ed8;
+}
+
+.writer-toolbar-button-group {
+    -fx-background-color: #ffffff;
+    -fx-background-radius: 13;
+    -fx-border-color: #dbe3ee;
+    -fx-border-radius: 13;
+    -fx-padding: 0;
+    -fx-spacing: 0;
+    -fx-effect: dropshadow(gaussian, rgba(15,23,42,0.08), 12, 0.0, 0, 2);
+}
+
+.writer-toolbar-button-group .writer-toolbar-button,
+.writer-toolbar-button-group .writer-toolbar-local-button {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-effect: null;
+    -fx-background-radius: 10;
+    -fx-border-radius: 10;
+}
+
+.writer-toolbar-button-group .writer-toolbar-button:hover,
+.writer-toolbar-button-group .writer-toolbar-local-button:hover {
+    -fx-background-color: #eef4ff;
     -fx-border-color: transparent;
 }
 
-.editor-scroll .scroll-bar .thumb {
-    -fx-background-color: #94a3b8;
-    -fx-background-radius: 8;
+.writer-toolbar-button-group .writer-toolbar-button:selected {
+    -fx-background-color: #eaf1fb;
+    -fx-border-color: #93c5fd;
 }
 
-.editor-scroll .scroll-bar .thumb:hover {
+.writer-toolbar-file-title-box {
+    -fx-alignment: center-left;
+    -fx-spacing: 0;
+    -fx-padding: 0 8 0 0;
+    -fx-min-width: 150px;
+    -fx-pref-width: 190px;
+}
+
+.writer-toolbar-file-title {
+    -fx-font-size: 15px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #1f2937;
+}
+
+.writer-toolbar-file-state {
+    -fx-font-size: 11px;
+    -fx-text-fill: #64748b;
+}
+
+.writer-toolbar-file-menu {
+    -fx-background-radius: 11;
+    -fx-border-radius: 11;
+}
+
+
+.writer-toolbar-zoom-combo {
+    -fx-pref-width: 92px;
+    -fx-min-height: 36px;
+    -fx-pref-height: 36px;
+    -fx-font-size: 13px;
+    -fx-background-color: #ffffff;
+    -fx-background-radius: 11;
+    -fx-border-color: #d3dce8;
+    -fx-border-radius: 11;
+    -fx-effect: dropshadow(gaussian, rgba(15,23,42,0.08), 10, 0.0, 0, 2);
+}
+
+.writer-toolbar .delos-icon {
+    -fx-icon-color: #263445;
+}
+
+.writer-toolbar-button:hover .delos-icon,
+.writer-toolbar-local-button:hover .delos-icon,
+.writer-toolbar-icon-menu-button:hover .delos-icon,
+.writer-toolbar-button:selected .delos-icon,
+.writer-toolbar-icon-menu-button:showing .delos-icon,
+.writer-toolbar-icon-menu-button:focused .delos-icon {
+    -fx-icon-color: #1d4ed8;
+}
+
+.writer-window-shell {
+    -fx-background-color: #eef2f6;
+}
+
+/* Right inspector now begins below the toolbar because the toolbar is mounted in
+   root.top. Keep its header aligned with the document content region, not the
+   toolbar row. */
+.writer-inspector {
+    -fx-effect: null;
+}
+
+/* UX-4e: Pages-like document title popover and Material Design icon polish. */
+.writer-toolbar-file-title-menu {
+    -fx-background-color: transparent;
+    -fx-background-radius: 10;
+    -fx-border-color: transparent;
+    -fx-border-radius: 10;
+    -fx-padding: 4 10 4 10;
+    -fx-min-width: 180px;
+    -fx-pref-width: 250px;
+    -fx-max-width: 330px;
+}
+
+.writer-toolbar-file-title-menu:hover,
+.writer-toolbar-file-title-menu:showing {
+    -fx-background-color: rgba(255,255,255,0.55);
+}
+
+.writer-toolbar-file-title-menu > .arrow-button {
+    -fx-padding: 0 0 0 8;
+}
+
+.writer-toolbar-file-title-menu > .arrow-button > .arrow {
     -fx-background-color: #64748b;
 }
 
-.editor-scroll .scroll-bar .thumb:pressed {
+.writer-toolbar-file-title-box {
+    -fx-alignment: center-left;
+    -fx-spacing: 0;
+    -fx-padding: 0;
+    -fx-min-width: 130px;
+    -fx-pref-width: 210px;
+    -fx-max-width: 280px;
+}
+
+.writer-toolbar-file-title {
+    -fx-font-size: 15px;
+    -fx-font-weight: 800;
+    -fx-text-fill: #1f2937;
+}
+
+.writer-toolbar-file-state {
+    -fx-font-size: 11px;
+    -fx-text-fill: #64748b;
+}
+
+.writer-toolbar-file-name-item {
+    -fx-padding: 8 12 8 12;
+}
+
+.writer-toolbar-file-name-row {
+    -fx-alignment: center-left;
+    -fx-spacing: 10;
+    -fx-min-width: 360px;
+}
+
+.writer-toolbar-file-name-label {
+    -fx-font-size: 13px;
+    -fx-text-fill: #64748b;
+    -fx-font-weight: 700;
+}
+
+.writer-toolbar-file-name-field {
+    -fx-min-width: 260px;
+    -fx-pref-width: 300px;
+    -fx-background-color: #ffffff;
+    -fx-background-radius: 8;
+    -fx-border-color: #cbd5e1;
+    -fx-border-radius: 8;
+    -fx-padding: 6 8 6 8;
+    -fx-font-size: 13px;
+}
+
+.writer-toolbar-file-name-field:focused {
+    -fx-border-color: #f4b47d;
+    -fx-effect: dropshadow(gaussian, rgba(249,115,22,0.35), 7, 0.0, 0, 0);
+}
+
+.writer-toolbar .delos-icon {
+    -fx-icon-size: 18px;
+    -fx-icon-color: #263445;
+}
+
+.writer-toolbar-button,
+.writer-toolbar-local-button,
+.writer-toolbar-icon-menu-button {
+    -fx-min-width: 38px;
+    -fx-pref-width: 38px;
+    -fx-max-width: 38px;
+    -fx-min-height: 38px;
+    -fx-pref-height: 38px;
+    -fx-max-height: 38px;
+}
+
+.writer-toolbar-button-group {
+    -fx-min-height: 40px;
+    -fx-pref-height: 40px;
+    -fx-alignment: center;
+}
+
+.writer-toolbar-zoom-combo {
+    -fx-min-height: 38px;
+    -fx-pref-height: 38px;
+}
+
+/* UX-4f: toolbar groups own the chrome; controls inside groups are flat. */
+.writer-toolbar-button-group {
+    -fx-background-color: #ffffff;
+    -fx-background-radius: 14;
+    -fx-border-color: #dbe3ee;
+    -fx-border-radius: 14;
+    -fx-padding: 0;
+    -fx-spacing: 0;
+    -fx-alignment: center;
+    -fx-min-height: 42px;
+    -fx-pref-height: 42px;
+}
+
+.writer-toolbar-button-group .button,
+.writer-toolbar-button-group .menu-button,
+.writer-toolbar-button-group .split-menu-button,
+.writer-toolbar-button-group .combo-box-base,
+.writer-toolbar-button-group .writer-toolbar-button,
+.writer-toolbar-button-group .writer-toolbar-local-button,
+.writer-toolbar-button-group .writer-toolbar-icon-menu-button,
+.writer-toolbar-button-group .writer-toolbar-zoom-combo {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-effect: null;
+    -fx-background-radius: 11;
+    -fx-border-radius: 11;
+}
+
+.writer-toolbar-button-group .button:hover,
+.writer-toolbar-button-group .menu-button:hover,
+.writer-toolbar-button-group .split-menu-button:hover,
+.writer-toolbar-button-group .combo-box-base:hover,
+.writer-toolbar-button-group .writer-toolbar-button:hover,
+.writer-toolbar-button-group .writer-toolbar-local-button:hover,
+.writer-toolbar-button-group .writer-toolbar-icon-menu-button:hover,
+.writer-toolbar-button-group .writer-toolbar-zoom-combo:hover {
+    -fx-background-color: #eef4ff;
+    -fx-border-color: transparent;
+}
+
+.writer-toolbar-button-group .button:selected,
+.writer-toolbar-button-group .menu-button:showing,
+.writer-toolbar-button-group .split-menu-button:showing,
+.writer-toolbar-button-group .writer-toolbar-button:selected,
+.writer-toolbar-button-group .writer-toolbar-icon-menu-button:showing,
+.writer-toolbar-button-group .writer-toolbar-icon-menu-button:focused {
+    -fx-background-color: #eaf1fb;
+    -fx-border-color: transparent;
+}
+
+.writer-toolbar-save-split-button {
+    -fx-min-width: 42px;
+    -fx-pref-width: 42px;
+    -fx-max-width: 42px;
+    -fx-min-height: 38px;
+    -fx-pref-height: 38px;
+    -fx-max-height: 38px;
+    -fx-padding: 0;
+}
+
+.writer-toolbar-save-split-button > .label {
+    -fx-padding: 0 0 0 0;
+    -fx-alignment: center;
+}
+
+.writer-toolbar-save-split-button > .arrow-button {
+    -fx-padding: 0 6 0 0;
+}
+
+.writer-toolbar-save-split-button > .arrow-button > .arrow {
     -fx-background-color: #475569;
+}
+
+.writer-toolbar-file-title-box {
+    -fx-alignment: center-left;
+    -fx-spacing: 0;
+    -fx-padding: 0 10 0 0;
+    -fx-min-width: 120px;
+    -fx-pref-width: 240px;
+    -fx-max-width: 380px;
+}
+
+.writer-toolbar-file-title {
+    -fx-font-size: 16px;
+    -fx-font-weight: 800;
+    -fx-text-fill: #172033;
+}
+
+.writer-toolbar-file-state {
+    -fx-font-size: 12px;
+    -fx-text-fill: #64748b;
+}
+
+.writer-toolbar-file-title-menu,
+.writer-toolbar-file-title-menu:hover,
+.writer-toolbar-file-title-menu:showing {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-effect: null;
+}
+
+
+/* UX-4g: toolbar groups use whitespace between capsules, not vertical separator lines. */
+.writer-toolbar {
+    -fx-spacing: 14;
+}
+
+.writer-toolbar-button-group {
+    -fx-alignment: center;
+    -fx-min-height: 40px;
+    -fx-pref-height: 40px;
+    -fx-padding: 0;
+}
+
+/* The group owns the border/background. Children inside the group stay flat. */
+.writer-toolbar-button-group .button,
+.writer-toolbar-button-group .menu-button,
+.writer-toolbar-button-group .split-menu-button,
+.writer-toolbar-button-group .combo-box-base,
+.writer-toolbar-button-group .writer-toolbar-button,
+.writer-toolbar-button-group .writer-toolbar-local-button,
+.writer-toolbar-button-group .writer-toolbar-icon-menu-button,
+.writer-toolbar-button-group .writer-toolbar-zoom-combo,
+.writer-toolbar-button-group .writer-toolbar-share-button {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-effect: null;
+    -fx-background-radius: 10;
+    -fx-border-radius: 10;
+}
+
+.writer-toolbar-button-group .button:hover,
+.writer-toolbar-button-group .menu-button:hover,
+.writer-toolbar-button-group .split-menu-button:hover,
+.writer-toolbar-button-group .combo-box-base:hover,
+.writer-toolbar-button-group .writer-toolbar-button:hover,
+.writer-toolbar-button-group .writer-toolbar-local-button:hover,
+.writer-toolbar-button-group .writer-toolbar-icon-menu-button:hover,
+.writer-toolbar-button-group .writer-toolbar-zoom-combo:hover,
+.writer-toolbar-button-group .writer-toolbar-share-button:hover {
+    -fx-background-color: #eef4ff;
+    -fx-border-color: transparent;
+}
+
+.writer-toolbar-button-group .button:selected,
+.writer-toolbar-button-group .menu-button:showing,
+.writer-toolbar-button-group .split-menu-button:showing,
+.writer-toolbar-button-group .writer-toolbar-button:selected,
+.writer-toolbar-button-group .writer-toolbar-icon-menu-button:showing,
+.writer-toolbar-button-group .writer-toolbar-icon-menu-button:focused,
+.writer-toolbar-button-group .writer-toolbar-share-button:focused {
+    -fx-background-color: #eaf1fb;
+    -fx-border-color: transparent;
+}
+
+.writer-toolbar-button-group .combo-box-base > .arrow-button {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+}
+
+/* UX-4h: save is a clean icon button; save-as remains available from context menu. */
+.writer-toolbar-save-button {
+    -fx-min-width: 38px;
+    -fx-pref-width: 38px;
+    -fx-max-width: 38px;
+    -fx-min-height: 38px;
+    -fx-pref-height: 38px;
+    -fx-max-height: 38px;
+    -fx-padding: 0;
+}
+
+.writer-toolbar-save-button .delos-left-sidebar-icon,
+.writer-toolbar-local-button .delos-left-sidebar-icon {
+    -fx-opacity: 1.0;
+}
+
+/* UX-4j: the filename is the document save menu. No separate save button/subtitle. */
+.writer-toolbar-file-title-menu {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-effect: null;
+    -fx-padding: 0 8 0 8;
+    -fx-min-height: 38px;
+    -fx-pref-height: 38px;
+    -fx-max-height: 38px;
+    -fx-content-display: graphic-only;
+}
+
+.writer-toolbar-file-title-menu:hover,
+.writer-toolbar-file-title-menu:showing,
+.writer-toolbar-file-title-menu:focused {
+    -fx-background-color: #eef4ff;
+    -fx-background-radius: 10;
+    -fx-border-color: transparent;
+}
+
+.writer-toolbar-file-title-menu > .label {
+    -fx-padding: 0;
+}
+
+.writer-toolbar-file-title-menu > .arrow-button {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-padding: 0 0 0 6;
+}
+
+.writer-toolbar-file-title-menu > .arrow-button > .arrow {
+    -fx-background-color: #64748b;
+    -fx-padding: 4;
+}
+
+.writer-toolbar-file-title {
+    -fx-font-size: 16px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #0f172a;
+}
+
+
+/* UX-4k: filename behaves like Share (button + context menu), with no MenuButton arrow and no capsule decoration. */
+.writer-toolbar-file-title-menu,
+.writer-toolbar-file-title-menu:hover,
+.writer-toolbar-file-title-menu:focused,
+.writer-toolbar-file-title-menu:armed {
+    -fx-background-color: transparent;
+    -fx-background-radius: 0;
+    -fx-border-color: transparent;
+    -fx-border-radius: 0;
+    -fx-effect: null;
+    -fx-padding: 0 2 0 0;
+    -fx-min-height: 36px;
+    -fx-pref-height: 36px;
+    -fx-max-height: 36px;
+    -fx-content-display: graphic-only;
+}
+
+.writer-toolbar-file-title-menu > .label {
+    -fx-padding: 0;
+}
+
+.writer-toolbar-file-title {
+    -fx-font-size: 16px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #0f172a;
+}
+
+
+/* UX-4l: lighter optical polish for the toolbar. */
+.writer-toolbar {
+    -fx-background-color: #f8fafc;
+    -fx-min-height: 54px;
+    -fx-pref-height: 54px;
+    -fx-padding: 6 16 6 16;
+    -fx-spacing: 10;
+}
+
+.writer-toolbar-document-cluster {
+    -fx-spacing: 8;
+    -fx-alignment: center-left;
+}
+
+.writer-toolbar-button,
+.writer-toolbar-local-button,
+.writer-toolbar-icon-menu-button {
+    -fx-background-radius: 10;
+    -fx-border-radius: 10;
+    -fx-padding: 6;
+    -fx-effect: dropshadow(gaussian, rgba(15,23,42,0.06), 8, 0.0, 0, 1);
+}
+
+.writer-toolbar-button-group {
+    -fx-background-radius: 12;
+    -fx-border-radius: 12;
+    -fx-effect: dropshadow(gaussian, rgba(15,23,42,0.06), 10, 0.0, 0, 1);
+}
+
+.writer-toolbar-file-title-menu,
+.writer-toolbar-file-title-menu:hover,
+.writer-toolbar-file-title-menu:focused,
+.writer-toolbar-file-title-menu:armed {
+    -fx-padding: 0;
+    -fx-min-height: 34px;
+    -fx-pref-height: 34px;
+    -fx-max-height: 34px;
+}
+
+.writer-toolbar-file-title {
+    -fx-font-size: 15px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #111827;
+}
+
+.writer-toolbar-spacer {
+    -fx-min-width: 20px;
+    -fx-pref-width: 20px;
+}
+
+.writer-toolbar-zoom-combo {
+    -fx-min-height: 34px;
+    -fx-pref-height: 34px;
+    -fx-background-radius: 10;
+    -fx-border-radius: 10;
+    -fx-effect: dropshadow(gaussian, rgba(15,23,42,0.06), 8, 0.0, 0, 1);
+}
+
+.writer-toolbar .delos-icon {
+    -fx-icon-color: #334155;
+}
+
+.writer-toolbar .button:disabled .delos-icon,
+.writer-toolbar .toggle-button:disabled .delos-icon,
+.writer-toolbar .combo-box:disabled .delos-icon {
+    -fx-icon-color: #94a3b8;
+}
+
+.writer-toolbar-button:disabled,
+.writer-toolbar-local-button:disabled,
+.writer-toolbar-button-group:disabled,
+.writer-toolbar-zoom-combo:disabled {
+    -fx-opacity: 0.7;
+}
+
+.writer-toolbar-fx-button {
+    -fx-font-size: 18px;
+    -fx-font-weight: 700;
+    -fx-font-style: italic;
+    -fx-text-fill: #334155;
+    -fx-padding: 0;
+}
+
+.writer-toolbar-button-group .writer-toolbar-fx-button:hover,
+.writer-toolbar-button-group .writer-toolbar-fx-button:armed,
+.writer-toolbar-button-group .writer-toolbar-fx-button:selected {
+    -fx-text-fill: #1d4ed8;
+}
+
+
+/* UX-4m: fix hover/focus styling for zoom combo inside toolbar group.
+   The group owns the chrome; the combo itself stays flat. */
+.writer-toolbar-button-group .writer-toolbar-zoom-combo,
+.writer-toolbar-button-group .writer-toolbar-zoom-combo:hover,
+.writer-toolbar-button-group .writer-toolbar-zoom-combo:focused,
+.writer-toolbar-button-group .writer-toolbar-zoom-combo:showing,
+.writer-toolbar-button-group .writer-toolbar-zoom-combo:armed {
+    -fx-background-color: transparent;
+    -fx-background-radius: 10;
+    -fx-border-color: transparent;
+    -fx-border-radius: 10;
+    -fx-effect: null;
+}
+
+.writer-toolbar-button-group .writer-toolbar-zoom-combo > .text-field,
+.writer-toolbar-button-group .writer-toolbar-zoom-combo > .arrow-button,
+.writer-toolbar-button-group .writer-toolbar-zoom-combo > .list-cell {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+}
+
+.writer-toolbar-button-group .writer-toolbar-zoom-combo:hover,
+.writer-toolbar-button-group .writer-toolbar-zoom-combo:focused,
+.writer-toolbar-button-group .writer-toolbar-zoom-combo:showing {
+    -fx-background-color: #eef4ff;
+}
+
+.writer-toolbar-button-group .writer-toolbar-zoom-combo > .arrow-button {
+    -fx-padding: 0 10 0 8;
+}
+
+.writer-toolbar-button-group .writer-toolbar-zoom-combo > .arrow-button > .arrow {
+    -fx-background-color: #64748b;
+}
+
+
+/* UX-4n: stronger ComboBox skin reset for toolbar grouped controls.
+   JavaFX ComboBox paints focus/hover through background layers rather than only
+   border properties, so reset background-insets/border-width too. */
+.writer-toolbar .writer-toolbar-button-group .combo-box-base.writer-toolbar-zoom-combo,
+.writer-toolbar .writer-toolbar-button-group .combo-box-base.writer-toolbar-zoom-combo:hover,
+.writer-toolbar .writer-toolbar-button-group .combo-box-base.writer-toolbar-zoom-combo:focused,
+.writer-toolbar .writer-toolbar-button-group .combo-box-base.writer-toolbar-zoom-combo:showing,
+.writer-toolbar .writer-toolbar-button-group .combo-box-base.writer-toolbar-zoom-combo:armed,
+.writer-toolbar .writer-toolbar-button-group .combo-box-base.writer-toolbar-zoom-combo:focused:hover {
+    -fx-background-color: transparent;
+    -fx-background-insets: 0;
+    -fx-background-radius: 10;
+    -fx-border-color: transparent;
+    -fx-border-width: 0;
+    -fx-border-insets: 0;
+    -fx-border-radius: 10;
+    -fx-effect: null;
+    -fx-padding: 0;
+}
+
+.writer-toolbar .writer-toolbar-button-group .combo-box-base.writer-toolbar-zoom-combo:hover,
+.writer-toolbar .writer-toolbar-button-group .combo-box-base.writer-toolbar-zoom-combo:showing {
+    -fx-background-color: #eef4ff;
+}
+
+.writer-toolbar .writer-toolbar-button-group .combo-box-base.writer-toolbar-zoom-combo > .list-cell,
+.writer-toolbar .writer-toolbar-button-group .combo-box-base.writer-toolbar-zoom-combo:hover > .list-cell,
+.writer-toolbar .writer-toolbar-button-group .combo-box-base.writer-toolbar-zoom-combo:focused > .list-cell,
+.writer-toolbar .writer-toolbar-button-group .combo-box-base.writer-toolbar-zoom-combo:showing > .list-cell {
+    -fx-background-color: transparent;
+    -fx-background-insets: 0;
+    -fx-border-color: transparent;
+    -fx-padding: 0 0 0 12;
+    -fx-text-fill: #1f2937;
+}
+
+.writer-toolbar .writer-toolbar-button-group .combo-box-base.writer-toolbar-zoom-combo > .arrow-button,
+.writer-toolbar .writer-toolbar-button-group .combo-box-base.writer-toolbar-zoom-combo:hover > .arrow-button,
+.writer-toolbar .writer-toolbar-button-group .combo-box-base.writer-toolbar-zoom-combo:focused > .arrow-button,
+.writer-toolbar .writer-toolbar-button-group .combo-box-base.writer-toolbar-zoom-combo:showing > .arrow-button {
+    -fx-background-color: transparent;
+    -fx-background-insets: 0;
+    -fx-border-color: transparent;
+    -fx-padding: 0 12 0 8;
+}
+
+.writer-toolbar .writer-toolbar-button-group .combo-box-base.writer-toolbar-zoom-combo > .arrow-button > .arrow {
+    -fx-background-color: #475569;
+    -fx-background-insets: 0;
+    -fx-padding: 4;
+}
+
+.writer-toolbar .writer-toolbar-button-group .combo-box-base.writer-toolbar-zoom-combo:disabled,
+.writer-toolbar .writer-toolbar-button-group .combo-box-base.writer-toolbar-zoom-combo:disabled > .list-cell,
+.writer-toolbar .writer-toolbar-button-group .combo-box-base.writer-toolbar-zoom-combo:disabled > .arrow-button {
+    -fx-opacity: 0.7;
+    -fx-background-color: transparent;
+}
+
+
+/* UX-4o: filename is a plain title control with hover-only disclosure and a Delos balloon popover. */
+.writer-toolbar-file-title-menu {
+    -fx-cursor: hand;
+}
+
+.writer-toolbar-file-title-graphic {
+    -fx-alignment: center-left;
+}
+
+.writer-toolbar-file-title-disclosure {
+    -fx-font-size: 14px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #64748b;
+    -fx-opacity: 0.0;
+    -fx-padding: 1 0 0 0;
+}
+
+.writer-toolbar-file-title-menu:hover .writer-toolbar-file-title-disclosure,
+.writer-toolbar-file-title-menu:focused .writer-toolbar-file-title-disclosure,
+.writer-toolbar-file-title-menu:armed .writer-toolbar-file-title-disclosure {
+    -fx-opacity: 1.0;
+}
+
+.writer-title-popover {
+    -fx-background-color: #ffffff;
+    -fx-background-radius: 14;
+    -fx-padding: 18 18 16 18;
+}
+
+.writer-title-popover-label {
+    -fx-font-size: 14px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #64748b;
+    -fx-alignment: center-right;
+}
+
+.writer-title-popover-name-field {
+    -fx-font-size: 15px;
+    -fx-background-color: #ffffff;
+    -fx-background-radius: 9;
+    -fx-border-color: #f4b37d;
+    -fx-border-radius: 9;
+    -fx-border-width: 2;
+    -fx-padding: 6 8;
+    -fx-pref-width: 360px;
+}
+
+.writer-title-popover-name-field:focused {
+    -fx-border-color: #f59e0b;
+    -fx-effect: dropshadow(gaussian, rgba(245,158,11,0.25), 7, 0.0, 0, 0);
+}
+
+.writer-title-popover-actions {
+    -fx-alignment: center-right;
+}
+
+.writer-title-popover-action {
+    -fx-background-color: #f8fafc;
+    -fx-background-radius: 8;
+    -fx-border-color: #cbd5e1;
+    -fx-border-radius: 8;
+    -fx-padding: 5 12;
+    -fx-text-fill: #1f2937;
+}
+
+.writer-title-popover-action:hover {
+    -fx-background-color: #eef4ff;
+    -fx-border-color: #93c5fd;
+}
+
+
+/* UX-4s: filename title should size to its text and the popover arrow should anchor to the title text. */
+.writer-toolbar-file-title-menu,
+.writer-toolbar-file-title-menu:hover,
+.writer-toolbar-file-title-menu:focused,
+.writer-toolbar-file-title-menu:armed {
+    -fx-background-color: transparent;
+    -fx-background-radius: 0;
+    -fx-border-color: transparent;
+    -fx-border-radius: 0;
+    -fx-effect: null;
+    -fx-padding: 0 2 0 0;
+    -fx-min-width: 0;
+    -fx-min-height: 34px;
+    -fx-pref-height: 34px;
+    -fx-max-height: 34px;
+    -fx-content-display: graphic-only;
+}
+
+.writer-toolbar-file-title-graphic {
+    -fx-alignment: center-left;
+    -fx-spacing: 5;
+}
+
+.writer-toolbar-file-title {
+    -fx-font-size: 15px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #111827;
+}
+
+.writer-toolbar-file-title-disclosure {
+    -fx-background-color: #64748b;
+    -fx-shape: "M 0 0 L 8 0 L 4 5 Z";
+    -fx-min-width: 8px;
+    -fx-pref-width: 8px;
+    -fx-max-width: 8px;
+    -fx-min-height: 5px;
+    -fx-pref-height: 5px;
+    -fx-max-height: 5px;
+    -fx-opacity: 0.0;
+}
+
+.writer-toolbar-file-title-menu:hover .writer-toolbar-file-title-disclosure,
+.writer-toolbar-file-title-menu:focused .writer-toolbar-file-title-disclosure,
+.writer-toolbar-file-title-menu:armed .writer-toolbar-file-title-disclosure {
+    -fx-opacity: 1.0;
+}
+
+
+/* UX-4t: filename is a skinless Save As trigger, not a popover/menu. */
+.writer-toolbar-file-title-button,
+.writer-toolbar-file-title-button:hover,
+.writer-toolbar-file-title-button:focused,
+.writer-toolbar-file-title-button:armed {
+    -fx-background-color: transparent;
+    -fx-background-radius: 0;
+    -fx-border-color: transparent;
+    -fx-border-radius: 0;
+    -fx-effect: null;
+    -fx-padding: 0 2 0 0;
+    -fx-min-width: 0;
+    -fx-min-height: 34px;
+    -fx-pref-height: 34px;
+    -fx-max-height: 34px;
+    -fx-content-display: graphic-only;
+    -fx-cursor: hand;
+}
+
+.writer-toolbar-file-title-button:hover .writer-toolbar-file-title,
+.writer-toolbar-file-title-button:focused .writer-toolbar-file-title,
+.writer-toolbar-file-title-button:armed .writer-toolbar-file-title {
+    -fx-text-fill: #1d4ed8;
+}
+
+.writer-toolbar-file-title-button:armed .writer-toolbar-file-title {
+    -fx-underline: true;
 }

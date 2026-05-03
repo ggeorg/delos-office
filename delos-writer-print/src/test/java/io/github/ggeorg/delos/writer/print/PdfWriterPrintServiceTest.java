@@ -56,6 +56,24 @@ class PdfWriterPrintServiceTest {
         Files.deleteIfExists(printedPdf);
     }
 
+
+    @Test
+    void printsFrozenPreviewLayoutThroughPdfService() throws Exception {
+        CapturingPrinter printer = new CapturingPrinter();
+        PdfWriterPrintService service = new PdfWriterPrintService(new WriterPdfService(), printer);
+
+        service.print(Document.blank(), singleEmptyPage(), PdfPrintOptions.defaultOptions()
+                .withTemporaryDirectory(tempDir)
+                .withJobName("Frozen Preview Print")
+                .keepingTemporaryPdf());
+
+        Path printedPdf = printer.pdf.get();
+        assertEquals("Frozen Preview Print", printer.jobName.get());
+        assertTrue(Files.exists(printedPdf), "debug mode keeps the frozen print PDF");
+        assertTrue(Files.size(printedPdf) > 0, "frozen preview print artifact should contain exported PDF bytes");
+        Files.deleteIfExists(printedPdf);
+    }
+
     @Test
     void canKeepTemporaryPdfForDebugging() throws Exception {
         CapturingPrinter printer = new CapturingPrinter();

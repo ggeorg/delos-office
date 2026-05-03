@@ -25,7 +25,7 @@ final class WriterCommandProvider {
     private final Runnable toggleCommandPalette;
     private final Runnable toggleInspector;
     private final BooleanSupplier inspectorVisible;
-    private final Runnable showWordCountDialog;
+    private final Runnable showStatisticsPopover;
     private final Runnable showAboutDialog;
 
     WriterCommandProvider(
@@ -38,7 +38,7 @@ final class WriterCommandProvider {
             Runnable toggleCommandPalette,
             Runnable toggleInspector,
             BooleanSupplier inspectorVisible,
-            Runnable showWordCountDialog,
+            Runnable showStatisticsPopover,
             Runnable showAboutDialog
     ) {
         this.registry = Objects.requireNonNull(registry, "registry");
@@ -50,7 +50,7 @@ final class WriterCommandProvider {
         this.toggleCommandPalette = Objects.requireNonNull(toggleCommandPalette, "toggleCommandPalette");
         this.toggleInspector = Objects.requireNonNull(toggleInspector, "toggleInspector");
         this.inspectorVisible = Objects.requireNonNull(inspectorVisible, "inspectorVisible");
-        this.showWordCountDialog = Objects.requireNonNull(showWordCountDialog, "showWordCountDialog");
+        this.showStatisticsPopover = Objects.requireNonNull(showStatisticsPopover, "showStatisticsPopover");
         this.showAboutDialog = Objects.requireNonNull(showAboutDialog, "showAboutDialog");
     }
 
@@ -121,7 +121,7 @@ final class WriterCommandProvider {
                 documentView::areRulersVisible);
         register("view.toggleInspector", "Toggle Inspector", "View", new KeyCodeCombination(KeyCode.I, KeyCombination.SHORTCUT_DOWN, KeyCombination.SHIFT_DOWN), toggleInspector, null, inspectorVisible);
 
-        register("tools.wordCount", "Word Count", "Tools", null, showWordCountDialog);
+        register("tools.wordCount", "Word Count", "Tools", null, showStatisticsPopover);
         registerDisabled("app.preferences", "Preferences…", "Application", null);
         register("app.about", "About Delos Writer", "Application", null, showAboutDialog);
     }

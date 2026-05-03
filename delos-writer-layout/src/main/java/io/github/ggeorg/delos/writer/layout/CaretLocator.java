@@ -43,7 +43,7 @@ public final class CaretLocator {
             for (int lineIndex = 0; lineIndex < block.lines().size(); lineIndex++) {
                 LaidOutLine line = block.lines().get(lineIndex);
                 if (containsCaretPosition(line, position.offset())) {
-                    int column = Math.max(0, Math.min(position.offset() - line.startOffset(), line.length()));
+                    int column = line.columnForOffset(position.offset());
                     return new ResolvedTextPosition(
                             location.page(),
                             location.pageIndex(),
@@ -57,7 +57,7 @@ public final class CaretLocator {
                 }
 
                 int candidateColumn = position.offset() < line.startOffset() ? 0 : line.length();
-                int candidateOffset = line.startOffset() + candidateColumn;
+                int candidateOffset = line.offsetForColumn(candidateColumn);
                 int distance = Math.abs(candidateOffset - position.offset());
                 if (nearestInParagraph == null || distance < nearestDistance) {
                     TextPosition clamped = new TextPosition(position.paragraphIndex(), candidateOffset);
@@ -125,7 +125,7 @@ public final class CaretLocator {
             for (int lineIndex = 0; lineIndex < absoluteBlock.lines().size(); lineIndex++) {
                 LaidOutLine line = absoluteBlock.lines().get(lineIndex);
                 if (containsCaretPosition(line, position.offset())) {
-                    int column = Math.max(0, Math.min(position.offset() - line.startOffset(), line.length()));
+                    int column = line.columnForOffset(position.offset());
                     return new ResolvedTextPosition(
                             page,
                             page.pageIndex(),
@@ -138,7 +138,7 @@ public final class CaretLocator {
                     );
                 }
                 int candidateColumn = position.offset() < line.startOffset() ? 0 : line.length();
-                int candidateOffset = line.startOffset() + candidateColumn;
+                int candidateOffset = line.offsetForColumn(candidateColumn);
                 int distance = Math.abs(candidateOffset - position.offset());
                 if (nearestInParagraph == null || distance < nearestDistance) {
                     nearestInParagraph = new ResolvedTextPosition(

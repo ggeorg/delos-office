@@ -47,7 +47,7 @@ public final class PageHitTester {
         double caretY = best.block().y() + best.line().y();
 
         return new HitTestResult(
-                new TextPosition(best.block().sourceParagraphIndex(), best.line().startOffset() + columnIndex),
+                new TextPosition(best.block().sourceParagraphIndex(), best.line().offsetForColumn(columnIndex)),
                 new CaretGeometry(caretX, caretY, best.line().height())
         );
     }
@@ -130,7 +130,7 @@ public final class PageHitTester {
 
         double lineLocalX = cellLocalX - best.block().x() - best.line().x();
         int columnIndex = best.line().nearestColumn(lineLocalX);
-        int offset = best.line().startOffset() + columnIndex;
+        int offset = best.line().offsetForColumn(columnIndex);
         CaretPosition storyPosition = CaretPosition.tableCell(
                 selection.blockIndex(),
                 selection.rowIndex(),

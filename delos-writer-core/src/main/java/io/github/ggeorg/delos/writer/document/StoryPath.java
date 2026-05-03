@@ -1,15 +1,11 @@
 package io.github.ggeorg.delos.writer.document;
 
 /**
- * Address of a reusable editable story container.
+ * Stable address of an editable story inside a Writer document.
  *
- * <p>A document has many possible stories over time: the main body, table cells,
- * headers, footers, footnotes, text boxes, and captions. A caret position should
- * not encode every container kind directly. Instead, it points at a {@code StoryPath}
- * and then at a block/offset inside that story.</p>
- *
- * <p>v74 introduces the address model only. The existing editor pipeline still
- * uses {@link TextPosition} until the StoryPath migration is wired in later.</p>
+ * <p>The body story is the default editing surface. Table cells expose nested
+ * stories so editor operations can target rich in-cell content without
+ * flattening table state into the main paragraph list.</p>
  */
 public sealed interface StoryPath permits BodyStoryPath, TableCellStoryPath {
     /**

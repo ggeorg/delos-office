@@ -45,6 +45,25 @@ public record ViewTheme(
         );
     }
 
+    public ViewTheme withLayoutTheme(LayoutTheme layoutTheme) {
+        return new ViewTheme(
+                workspaceBackground(),
+                pageShadow(),
+                pageBackground(),
+                pageBorder(),
+                separatorColor(),
+                titleText(),
+                bodyText(),
+                selectionFill(),
+                java.util.Objects.requireNonNull(layoutTheme, "layoutTheme"),
+                outerPadding(),
+                interPageGap(),
+                pageCornerRadius(),
+                pageShadowOffsetX(),
+                pageShadowOffsetY()
+        );
+    }
+
     public RenderTheme renderTheme() {
         return new RenderTheme(
                 workspaceBackground(),

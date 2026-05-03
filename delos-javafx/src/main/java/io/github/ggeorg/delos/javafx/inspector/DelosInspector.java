@@ -25,7 +25,7 @@ import java.util.Objects;
  * document-specific sections.</p>
  */
 public class DelosInspector extends BorderPane {
-    public static final double DEFAULT_WIDTH = 320.0;
+    public static final double DEFAULT_WIDTH = 300.0;
 
     private final HBox tabBar = new HBox();
     private final ToggleGroup tabs = new ToggleGroup();
@@ -41,12 +41,15 @@ public class DelosInspector extends BorderPane {
         setMaxWidth(DEFAULT_WIDTH);
 
         tabBar.getStyleClass().add("delos-inspector-tabs");
-        tabBar.setPadding(new Insets(10, 10, 8, 10));
+        tabBar.setMinHeight(44.0);
+        tabBar.setPrefHeight(44.0);
+        tabBar.setMaxHeight(44.0);
+        tabBar.setPadding(Insets.EMPTY);
 
         scroller.getStyleClass().add("delos-inspector-scroll");
         scroller.setFitToWidth(true);
         scroller.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
-        scroller.setVbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+        scroller.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
 
         contentHost.getStyleClass().add("delos-inspector-content-host");
         setTop(tabBar);

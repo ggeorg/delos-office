@@ -16,7 +16,7 @@ class PdfExportOptionsTest {
         assertEquals(options.layoutTheme().titleFont(), options.renderTheme().titleFont());
         assertEquals(options.layoutTheme().bodyFont(), options.renderTheme().bodyFont());
         assertEquals("Helvetica", options.layoutTheme().titleFont().family());
-        assertEquals("Helvetica", options.layoutTheme().bodyFont().family());
+        assertEquals("Times", options.layoutTheme().bodyFont().family());
     }
 
     @Test

@@ -49,10 +49,10 @@ final class SelectionRenderer {
 
         int startColumn = selectionStart.compareTo(lineStart) <= 0
                 ? 0
-                : Math.max(0, Math.min(line.length(), selectionStart.offset() - line.startOffset()));
+                : line.columnForOffset(selectionStart.offset());
         int endColumn = selectionEnd.compareTo(lineEnd) >= 0
-                ? line.length()
-                : Math.max(0, Math.min(line.length(), selectionEnd.offset() - line.startOffset()));
+                ? line.columnForOffset(line.endOffset())
+                : line.columnForOffset(selectionEnd.offset());
         if (endColumn <= startColumn) {
             return;
         }

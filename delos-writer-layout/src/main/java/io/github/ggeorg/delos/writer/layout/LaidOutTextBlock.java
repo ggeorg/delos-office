@@ -4,10 +4,11 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * Positioned text block with already broken lines.
- * <p>
- * v5 keeps the source paragraph identity so one paragraph can flow across pages
- * as multiple fragments without losing logical mapping.
+ * Laid-out fragment of a source paragraph on a page.
+ *
+ * <p>A single source paragraph may produce multiple {@code LaidOutTextBlock}s
+ * when it spans pages. The {@code paragraphIndex} maps each fragment back to
+ * the source story.</p>
  */
 public record LaidOutTextBlock(
         BlockRole role,

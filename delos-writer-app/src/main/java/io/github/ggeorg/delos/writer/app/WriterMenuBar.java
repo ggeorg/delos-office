@@ -1,25 +1,19 @@
 package io.github.ggeorg.delos.writer.app;
 
+import io.github.ggeorg.delos.javafx.chrome.DelosMenus;
 import io.github.ggeorg.delos.javafx.command.CommandRegistry;
-import io.github.ggeorg.delos.javafx.command.EditorCommand;
-import javafx.scene.control.CheckMenuItem;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
-import javafx.scene.control.MenuItem;
 import javafx.scene.control.SeparatorMenuItem;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
 
 final class WriterMenuBar extends MenuBar {
     private final CommandRegistry commandRegistry;
-    private final List<CommandBoundMenuItem> commandItems = new ArrayList<>();
 
     WriterMenuBar(CommandRegistry commandRegistry) {
         this.commandRegistry = Objects.requireNonNull(commandRegistry, "commandRegistry");
-        getStyleClass().add("writer-menu-bar");
-        setUseSystemMenuBar(true);
+        DelosMenus.configure(this, "writer-menu-bar");
         getMenus().setAll(
                 fileMenu(),
                 editMenu(),
@@ -34,7 +28,7 @@ final class WriterMenuBar extends MenuBar {
     }
 
     void refreshFromCommands() {
-        commandItems.forEach(CommandBoundMenuItem::refresh);
+        DelosMenus.refresh(this);
     }
 
     private Menu fileMenu() {
@@ -196,24 +190,7 @@ final class WriterMenuBar extends MenuBar {
         return menu;
     }
 
-    private MenuItem item(String commandId) {
-        EditorCommand command = commandRegistry.byId(commandId)
-                .orElseThrow(() -> new IllegalArgumentException("Unknown command: " + commandId));
-        MenuItem item = command.active() == null ? new MenuItem(command.label()) : new CheckMenuItem(command.label());
-        item.setAccelerator(command.accelerator());
-        item.setOnAction(event -> command.execute());
-        CommandBoundMenuItem binding = new CommandBoundMenuItem(command, item);
-        commandItems.add(binding);
-        binding.refresh();
-        return item;
-    }
-
-    private record CommandBoundMenuItem(EditorCommand command, MenuItem menuItem) {
-        void refresh() {
-            menuItem.setDisable(!command.isEnabled());
-            if (menuItem instanceof CheckMenuItem checkMenuItem) {
-                checkMenuItem.setSelected(command.isActive());
-            }
-        }
+    private javafx.scene.control.MenuItem item(String commandId) {
+        return DelosMenus.item(commandRegistry, commandId);
     }
 }

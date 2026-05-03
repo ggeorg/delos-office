@@ -5,12 +5,12 @@ import io.github.ggeorg.delos.javafx.command.CommandRegistry;
 import io.github.ggeorg.delos.writer.app.inspector.WriterInspectorPane;
 import io.github.ggeorg.delos.writer.document.Document;
 import io.github.ggeorg.delos.writer.session.EditorSession;
-import io.github.ggeorg.delos.writer.ui.StatusBar;
 import io.github.ggeorg.delos.writer.ui.command.EditorContextMenuFactory;
 import io.github.ggeorg.delos.writer.ui.control.DelosEditor;
 import io.github.ggeorg.delos.writer.ui.control.WriterDocumentView;
 import javafx.beans.property.ReadOnlyDoubleProperty;
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ContextMenu;
@@ -21,12 +21,14 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
+import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Objects;
 
 public final class WriterMainWindow extends BorderPane {
     private final Stage stage;
     private final EditorSession session = new EditorSession(Document.sample());
+    private final WriterOutputPreview outputPreview = WriterOutputPreview.createDefault();
     private final WriterDocumentView documentView;
     private final DelosEditor editor;
     private final CommandRegistry commandRegistry = new CommandRegistry();
@@ -36,10 +38,10 @@ public final class WriterMainWindow extends BorderPane {
     private final EditorContextMenuFactory contextMenuFactory;
     private final WriterMenuBar menuBar;
     private final WriterToolBar toolBar;
-    private final StatusBar statusBar;
+    private final WriterCanvasBadge canvasBadge;
     private final WriterInspectorPane inspector;
     private final StackPane rootStack;
-    private final VBox topChrome;
+    private final VBox appChrome;
     private final BorderPane documentShell;
     private final HBox windowShell;
     private StackPane overlayLayer;
@@ -51,7 +53,7 @@ public final class WriterMainWindow extends BorderPane {
         getStyleClass().add("main-window");
         setPadding(new Insets(0));
 
-        documentView = new WriterDocumentView(session);
+        documentView = outputPreview.createDocumentView(session);
         editor = documentView.editor();
         fileController = new WriterFileController(stage, session, editor, this::refreshChrome);
         insertController = new WriterInsertController(stage, editor);
@@ -66,19 +68,24 @@ public final class WriterMainWindow extends BorderPane {
                 this::toggleCommandPalette,
                 this::toggleInspector,
                 this::isInspectorVisible,
-                this::showWordCountDialog,
+                this::showStatisticsPopover,
                 this::showAboutDialog
         ).registerCommands();
 
         menuBar = new WriterMenuBar(commandRegistry);
-        toolBar = new WriterToolBar(commandRegistry);
-        topChrome = new VBox(menuBar, toolBar);
-        topChrome.getStyleClass().add("writer-top-chrome");
-
-        statusBar = new StatusBar();
+        canvasBadge = new WriterCanvasBadge();
         inspector = new WriterInspectorPane(session, editor, commandRegistry);
         inspector.setManaged(inspectorVisible);
         inspector.setVisible(inspectorVisible);
+        toolBar = new WriterToolBar(commandRegistry, inspector::selectTab, inspector::selectedTabId, fileController::displayName, session::isDirty, fileController::renameDocumentTitle);
+
+        appChrome = new VBox();
+        appChrome.getStyleClass().add("writer-app-chrome");
+        if (!menuBar.isUseSystemMenuBar()) {
+            appChrome.getChildren().setAll(menuBar, toolBar);
+        } else {
+            appChrome.getChildren().setAll(toolBar);
+        }
 
         chromeController = new WriterChromeController(
                 stage,
@@ -86,7 +93,7 @@ public final class WriterMainWindow extends BorderPane {
                 editor,
                 menuBar,
                 toolBar,
-                statusBar,
+                canvasBadge,
                 fileController,
                 this::isInspectorVisible
         );
@@ -95,20 +102,21 @@ public final class WriterMainWindow extends BorderPane {
         configureCommandPalette();
         configureEditorContextMenu();
 
-        rootStack = new StackPane(documentView);
+        rootStack = new StackPane(documentView, canvasBadge);
         rootStack.getStyleClass().add("editor-stack");
+        StackPane.setAlignment(canvasBadge, Pos.BOTTOM_CENTER);
+        StackPane.setMargin(canvasBadge, new Insets(0, 0, 20, 0));
         rootStack.widthProperty().addListener((obs, oldValue, newValue) -> resizeOverlayLayer());
         rootStack.heightProperty().addListener((obs, oldValue, newValue) -> resizeOverlayLayer());
 
         documentShell = new BorderPane();
         documentShell.getStyleClass().add("writer-document-shell");
-        documentShell.setTop(topChrome);
         documentShell.setCenter(rootStack);
-        documentShell.setBottom(statusBar);
 
         windowShell = new HBox(documentShell, inspector);
         windowShell.getStyleClass().add("writer-window-shell");
         HBox.setHgrow(documentShell, Priority.ALWAYS);
+        setTop(appChrome);
         setCenter(windowShell);
 
         session.addStateListener(this::refreshChrome);
@@ -155,7 +163,20 @@ public final class WriterMainWindow extends BorderPane {
     }
 
     public boolean requestClose() {
-        return fileController.requestClose();
+        if (!fileController.requestClose()) {
+            return false;
+        }
+        closePreviewResources();
+        return true;
+    }
+
+    private void closePreviewResources() {
+        try {
+            outputPreview.close();
+        } catch (IOException ignored) {
+            // Closing measurement-only preview resources should not block the
+            // app from closing after the user has already confirmed.
+        }
     }
 
     private void toggleInspector() {
@@ -179,6 +200,7 @@ public final class WriterMainWindow extends BorderPane {
     }
 
     private void showCommandPalette() {
+        canvasBadge.hideStatisticsPopover();
         if (!rootStack.getChildren().contains(overlayLayer)) {
             rootStack.getChildren().add(overlayLayer);
         }
@@ -207,13 +229,8 @@ public final class WriterMainWindow extends BorderPane {
         documentView.focusEditor();
     }
 
-    private void showWordCountDialog() {
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.initOwner(stage);
-        alert.setTitle("Word Count");
-        alert.setHeaderText("Document statistics");
-        alert.setContentText(StatusBar.countWords(session.document()) + " words");
-        alert.showAndWait();
+    private void showStatisticsPopover() {
+        canvasBadge.showStatisticsPopover();
     }
 
     private void showAboutDialog() {

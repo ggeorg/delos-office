@@ -15,24 +15,36 @@ final class WriterToolBarContractTest {
     );
 
     @Test
-    void toolbarStaysSimpleAndLeavesDetailedFormattingToInspector() throws IOException {
+    void toolbarUsesSkinlessFilenameSaveAsTriggerAndPagesLikeGroupedChrome() throws IOException {
         String source = Files.readString(TOOLBAR);
 
-        assertTrue(source.contains("button(\"file.print\""));
+        assertTrue(source.contains("documentCluster()"));
+        assertTrue(source.contains("localIconButton(DelosIconId.LEFT_SIDEBAR"));
+        assertTrue(source.contains("new FileTitleButton(commandRegistry, displayName, dirty, renameDocumentTitle)"));
+        assertTrue(source.contains("writer-toolbar-file-title-button"));
+        assertTrue(source.contains("setOnAction(event -> commandRegistry.byId(\"file.saveAs\").ifPresent(EditorCommand::execute))"));
+        assertTrue(source.contains("stripWriterExtension"));
+        assertTrue(source.contains("button(\"edit.undo\""));
+        assertTrue(source.contains("button(\"edit.redo\""));
+        assertTrue(source.contains("button(\"edit.cut\""));
+        assertTrue(source.contains("button(\"edit.copy\""));
+        assertTrue(source.contains("button(\"edit.paste\""));
         assertTrue(source.contains("button(\"insert.image\""));
         assertTrue(source.contains("button(\"insert.table\""));
-        assertTrue(source.contains("button(\"insert.formula\""));
-        assertTrue(source.contains("toggleButton(\"view.toggleRuler\""));
+        assertTrue(source.contains("formulaButton()"));
+        assertTrue(source.contains("shareButton()"));
         assertTrue(source.contains("toggleButton(\"view.toggleInspector\""));
+        assertTrue(source.contains("pageLayoutButton(selectInspectorTab)"));
         assertTrue(source.contains("ZoomPresetPicker"));
-        assertTrue(source.contains("new ZoomPreset(\"view.zoomFitWidth\", \"Fit\")"));
-        assertTrue(source.contains("new ZoomPreset(\"view.zoom90\", \"90%\")"));
-        assertTrue(source.contains("commandRegistry.byId(newValue.commandId()).ifPresent(EditorCommand::execute)"));
 
-        assertFalse(source.contains("stylePicker()"));
-        assertFalse(source.contains("fontPicker()"));
-        assertFalse(source.contains("fontSizePicker()"));
-        assertFalse(source.contains("toggleButton(\"format.bold\""));
-        assertFalse(source.contains("button(\"format.bulletedList\""));
+        assertFalse(source.contains("DelosBalloonPopover"));
+        assertFalse(source.contains("TextField"));
+        assertFalse(source.contains("GridPane"));
+        assertFalse(source.contains("ContextMenu menu = new ContextMenu(DelosMenus.item(commandRegistry, \"file.save\")"));
+        assertFalse(source.contains("MenuButton"));
+        assertFalse(source.contains("SplitMenuButton"));
+        assertFalse(source.contains("button(\"file.print\""));
+        assertFalse(source.contains("button(\"format.bold\""));
+        assertFalse(source.contains("DelosIconId.CHART"));
     }
 }

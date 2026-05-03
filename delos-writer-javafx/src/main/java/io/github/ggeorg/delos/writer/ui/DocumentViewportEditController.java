@@ -17,6 +17,8 @@ import io.github.ggeorg.delos.writer.editor.DocumentFormatter;
 import io.github.ggeorg.delos.writer.editor.EditCommand;
 import io.github.ggeorg.delos.writer.editor.EditorInteractionModel;
 import io.github.ggeorg.delos.writer.document.SelectionRange;
+import io.github.ggeorg.delos.writer.document.Story;
+import io.github.ggeorg.delos.writer.editor.TextOffsets;
 import io.github.ggeorg.delos.writer.editor.TextStyle;
 import io.github.ggeorg.delos.writer.layout.DocumentPositionNavigator;
 import io.github.ggeorg.delos.writer.layout.LaidOutDocument;
@@ -349,7 +351,7 @@ public final class DocumentViewportEditController {
         if (current.isEmpty()) {
             return;
         }
-        int cut = current.offsetByCodePoints(current.length(), -1);
+        int cut = TextOffsets.previousCodePointOffset(current, current.length());
         replaceTableCellText(selection, current.substring(0, cut), "Edit Table Cell");
     }
 
@@ -393,7 +395,11 @@ public final class DocumentViewportEditController {
         TextPosition end = new TextPosition(storyCaret.storyBlockIndex(), storyCaret.offset());
         TextPosition start;
         if (storyCaret.offset() > 0) {
-            start = new TextPosition(storyCaret.storyBlockIndex(), storyCaret.offset() - 1);
+            String current = storyParagraphText(storyCaret);
+            start = new TextPosition(
+                    storyCaret.storyBlockIndex(),
+                    TextOffsets.previousCodePointOffset(current, storyCaret.offset())
+            );
         } else if (storyCaret.storyBlockIndex() > 0) {
             int previousParagraph = storyCaret.storyBlockIndex() - 1;
             start = new TextPosition(previousParagraph, documentEditor.storyParagraphLength(session.document(), storyCaret.storyPath(), previousParagraph));
@@ -410,12 +416,13 @@ public final class DocumentViewportEditController {
             deleteForward();
             return;
         }
-        int paragraphLength = documentEditor.storyParagraphLength(session.document(), storyCaret.storyPath(), storyCaret.storyBlockIndex());
+        String current = storyParagraphText(storyCaret);
+        int paragraphLength = current.length();
         int paragraphCount = documentEditor.storyParagraphCount(session.document(), storyCaret.storyPath());
         TextPosition start = new TextPosition(storyCaret.storyBlockIndex(), storyCaret.offset());
         TextPosition end;
         if (storyCaret.offset() < paragraphLength) {
-            end = new TextPosition(storyCaret.storyBlockIndex(), storyCaret.offset() + 1);
+            end = new TextPosition(storyCaret.storyBlockIndex(), TextOffsets.nextCodePointOffset(current, storyCaret.offset()));
         } else if (storyCaret.storyBlockIndex() < paragraphCount - 1) {
             end = new TextPosition(storyCaret.storyBlockIndex() + 1, 0);
         } else {
@@ -437,6 +444,15 @@ public final class DocumentViewportEditController {
             return 0;
         }
         return documentEditor.storyParagraphCount(session.document(), storyCaret.storyPath());
+    }
+
+    private String storyParagraphText(CaretPosition storyCaret) {
+        Story story = documentEditor.resolveStory(session.document(), storyCaret.storyPath());
+        if (story.paragraphs().isEmpty()) {
+            return "";
+        }
+        int safeIndex = Math.max(0, Math.min(storyCaret.storyBlockIndex(), story.paragraphs().size() - 1));
+        return story.paragraphs().get(safeIndex).plainText();
     }
 
 
@@ -567,7 +583,13 @@ public final class DocumentViewportEditController {
         }
 
         TextPosition start = caret.offset() > 0
-                ? new TextPosition(caret.paragraphIndex(), caret.offset() - 1)
+                ? new TextPosition(
+                        caret.paragraphIndex(),
+                        TextOffsets.previousCodePointOffset(
+                                session.document().paragraphs().get(caret.paragraphIndex()).plainText(),
+                                caret.offset()
+                        )
+                )
                 : new TextPosition(caret.paragraphIndex() - 1, session.document().paragraphs().get(caret.paragraphIndex() - 1).plainText().length());
 
         applyEdit(start, caret, "", "Backspace");
@@ -590,10 +612,11 @@ public final class DocumentViewportEditController {
             return;
         }
 
-        int paragraphLength = session.document().paragraphs().get(caret.paragraphIndex()).plainText().length();
+        String current = session.document().paragraphs().get(caret.paragraphIndex()).plainText();
+        int paragraphLength = current.length();
         TextPosition end;
         if (caret.offset() < paragraphLength) {
-            end = new TextPosition(caret.paragraphIndex(), caret.offset() + 1);
+            end = new TextPosition(caret.paragraphIndex(), TextOffsets.nextCodePointOffset(current, caret.offset()));
         } else if (caret.paragraphIndex() < session.document().paragraphs().size() - 1) {
             end = new TextPosition(caret.paragraphIndex() + 1, 0);
         } else {
@@ -615,7 +638,13 @@ public final class DocumentViewportEditController {
 
         SelectionRange selection = interactionModel.selectionRange();
         TextPosition caret = interactionModel.caretPosition();
-        DocumentEdit edit = documentEditor.replace(session.document(), selection, caret, normalizeUserText(replacement), description);
+        DocumentEdit edit = documentEditor.replaceIncludingInterleavedBlocks(
+                session.document(),
+                selection,
+                caret,
+                normalizeUserText(replacement),
+                description
+        );
         applyEdit(edit);
     }
 

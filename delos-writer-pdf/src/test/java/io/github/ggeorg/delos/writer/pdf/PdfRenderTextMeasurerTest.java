@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
@@ -31,6 +32,26 @@ class PdfRenderTextMeasurerTest {
         RenderFont styled = measurer.styledFont(new RenderFont("Serif", 12.0, false, false), true, true);
 
         assertEquals(new RenderFont("Times", 12.0, true, true), styled);
+    }
+
+
+    @Test
+    void lineBoxMetricsComeFromPdfFontDescriptors() {
+        PdfRenderTextMeasurer measurer = new PdfRenderTextMeasurer(new PdfFontRegistry());
+        RenderFont helvetica = new RenderFont("Helvetica", 12.0, false, false);
+        RenderFont times = new RenderFont("Times", 12.0, false, false);
+
+        double helveticaLineHeight = measurer.lineHeight(helvetica);
+        double timesLineHeight = measurer.lineHeight(times);
+        double helveticaBaseline = measurer.baseline(helvetica);
+        double timesBaseline = measurer.baseline(times);
+
+        assertTrue(helveticaLineHeight > 0.0);
+        assertTrue(timesLineHeight > 0.0);
+        assertTrue(helveticaBaseline > 0.0 && helveticaBaseline < helveticaLineHeight);
+        assertTrue(timesBaseline > 0.0 && timesBaseline < timesLineHeight);
+        assertNotEquals(helveticaLineHeight, timesLineHeight, 0.0001);
+        assertNotEquals(helveticaBaseline, timesBaseline, 0.0001);
     }
 
     @Test

@@ -36,7 +36,7 @@ class WriterPdfServiceTest {
         LaidOutDocument layout = service.layout(document);
 
         assertFalse(layout.pages().isEmpty());
-        assertEquals("Helvetica", PdfExportOptions.defaultOptions().layoutTheme().bodyFont().family());
+        assertEquals("Times", PdfExportOptions.defaultOptions().layoutTheme().bodyFont().family());
         assertEquals(PdfExportOptions.defaultOptions().layoutTheme().bodyFont(), PdfExportOptions.defaultOptions().renderTheme().bodyFont());
     }
 
@@ -65,6 +65,24 @@ class WriterPdfServiceTest {
         ByteArrayOutputStream output = new ByteArrayOutputStream();
 
         service.export(document, output);
+
+        assertTrue(pdfContainsImageXObject(output.toByteArray()));
+    }
+
+
+    @Test
+    void exportsExistingFrozenLayoutWithDocumentMediaResolver() throws IOException {
+        WriterPdfService service = new WriterPdfService();
+        Document document = Document.fromBlocks(
+                "Frozen Image PDF",
+                PageStyle.a4Default(),
+                List.<Block>of(new ImageBlock("media/image-1.png", 64.0, 64.0, "one pixel")),
+                List.of(DocumentMediaItem.image("media/image-1.png", "image/png", ONE_PIXEL_PNG))
+        );
+        LaidOutDocument layout = service.layout(document);
+        ByteArrayOutputStream output = new ByteArrayOutputStream();
+
+        service.exportLayout(document, layout, output);
 
         assertTrue(pdfContainsImageXObject(output.toByteArray()));
     }

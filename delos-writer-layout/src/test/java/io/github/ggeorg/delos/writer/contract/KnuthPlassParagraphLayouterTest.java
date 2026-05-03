@@ -5,7 +5,6 @@ import io.github.ggeorg.delos.writer.document.CharacterStyle;
 import io.github.ggeorg.delos.writer.document.Paragraph;
 import io.github.ggeorg.delos.writer.document.ParagraphStyle;
 import io.github.ggeorg.delos.writer.document.TextRun;
-import io.github.ggeorg.delos.writer.layout.GreedyParagraphLayouter;
 import io.github.ggeorg.delos.writer.layout.KnuthPlassParagraphLayouter;
 import io.github.ggeorg.delos.writer.layout.LaidOutLine;
 import io.github.ggeorg.delos.writer.layout.LaidOutRun;
@@ -29,10 +28,6 @@ class KnuthPlassParagraphLayouterTest {
         return new KnuthPlassParagraphLayouter(measurer());
     }
 
-    private GreedyParagraphLayouter greedy() {
-        return new GreedyParagraphLayouter(measurer());
-    }
-
     @Test
     void materializesChosenBreaksBackIntoStableLinesAndRuns() {
         Paragraph paragraph = new Paragraph(List.of(
@@ -50,7 +45,7 @@ class KnuthPlassParagraphLayouterTest {
 
         assertTrue(lines.size() >= 2, "expected the experimental layouter to wrap the paragraph");
         assertEquals("Delos keeps styled words flowing through the experimental layouter.",
-                lines.stream().map(LaidOutLine::text).reduce("", String::concat));
+                lines.stream().map(LaidOutLine::sourceText).reduce("", String::concat));
         assertEquals(0, lines.getFirst().startOffset());
         assertEquals(paragraph.length(), lines.getLast().endOffset());
         assertTrue(lines.stream().flatMap(line -> line.runs().stream()).anyMatch(LaidOutRun::bold));
@@ -58,15 +53,32 @@ class KnuthPlassParagraphLayouterTest {
     }
 
     @Test
-    void leftAlignedParagraphsFallBackToGreedyLayoutUntilRaggedKnuthPlassIsReady() {
-        Paragraph paragraph = Paragraph.of("Delos should keep normal left aligned paragraphs readable while justify remains experimental.");
+    void leftAlignedParagraphsUseKnuthPlassWithoutJustifyingSpacing() {
+        Paragraph paragraph = Paragraph.of("Delos should keep normal left aligned paragraphs readable while hyphenation works outside justify.");
         RenderFont font = new RenderFont("System", 14, false, false);
 
-        List<LaidOutLine> greedy = runDirectly(() -> greedy().layoutLines(paragraph, font, 180, 4));
-        List<LaidOutLine> hybrid = runDirectly(() -> knuthPlass().layoutLines(paragraph, font, 180, 4));
+        List<LaidOutLine> lines = runDirectly(() -> knuthPlass().layoutLines(paragraph, font, 180, 4));
 
-        assertEquals(greedy.stream().map(LaidOutLine::text).toList(),
-                hybrid.stream().map(LaidOutLine::text).toList());
+        assertTrue(lines.size() >= 2, "expected the paragraph to wrap");
+        assertEquals(paragraph.plainText(), lines.stream().map(LaidOutLine::sourceText).reduce("", String::concat));
+        for (LaidOutLine line : lines) {
+            assertTrue(line.width() <= 180.0 + 0.001,
+                    "left-aligned lines may naturally fill the measure, but must not exceed it");
+            assertEquals(0.0, line.x(), 0.001,
+                    "left-aligned lines should remain anchored at the left edge");
+            assertEquals(line.width(), line.caretStops().getLast(), 0.001,
+                    "caret stops must remain normalized to the laid-out line width");
+        }
+
+        Paragraph justifiedParagraph = Paragraph.of(
+                ParagraphStyle.defaultBody().withAlignment(Alignment.JUSTIFY),
+                paragraph.plainText()
+        );
+        List<LaidOutLine> justifiedLines = runDirectly(() -> knuthPlass().layoutLines(justifiedParagraph, font, 180, 4));
+        assertTrue(justifiedLines.size() >= 2, "expected the justified paragraph to wrap as well");
+        assertTrue(justifiedLines.subList(0, justifiedLines.size() - 1).stream()
+                        .anyMatch(line -> Math.abs(line.width() - 180.0) < 1.0),
+                "justification stretching should be limited to JUSTIFY alignment, not required from LEFT alignment");
     }
 
     @Test
@@ -139,7 +151,7 @@ class KnuthPlassParagraphLayouterTest {
 
         assertTrue(lines.size() >= 2, "expected a wrapped justified paragraph");
         assertEquals("Delos bold and italic runs should justify cleanly across the same paragraph with stable caret mapping.",
-                lines.stream().map(LaidOutLine::text).reduce("", String::concat));
+                lines.stream().map(LaidOutLine::sourceText).reduce("", String::concat));
         assertTrue(lines.stream().flatMap(line -> line.runs().stream()).anyMatch(LaidOutRun::bold));
         assertTrue(lines.stream().flatMap(line -> line.runs().stream()).anyMatch(LaidOutRun::italic));
         assertTrue(lines.stream().allMatch(line -> line.caretStops().size() == line.text().length() + 1));
@@ -199,7 +211,7 @@ class KnuthPlassParagraphLayouterTest {
     @Test
     void automaticallyHyphenatesLongWordsWhenNeeded() {
         Paragraph paragraph = Paragraph.of(
-                ParagraphStyle.defaultBody().withAlignment(Alignment.JUSTIFY),
+                ParagraphStyle.defaultBody(),
                 "demonstration"
         );
 
@@ -213,7 +225,36 @@ class KnuthPlassParagraphLayouterTest {
         assertTrue(lines.size() >= 2, "expected the long word to wrap through a discretionary hyphen");
         assertTrue(lines.stream().limit(lines.size() - 1).anyMatch(line -> line.text().endsWith("-")),
                 "expected a non-terminal line to end with a discretionary hyphen");
-        assertEquals("demonstration", lines.stream().map(LaidOutLine::text).reduce("", String::concat).replace("-", ""));
+        assertEquals("demonstration", lines.stream().map(LaidOutLine::sourceText).reduce("", String::concat));
+    }
+
+    @Test
+    void automaticHyphenGlyphDoesNotBecomeDocumentSourceTextOrOffset() {
+        Paragraph paragraph = Paragraph.of(
+                ParagraphStyle.defaultBody(),
+                "demonstration"
+        );
+
+        List<LaidOutLine> lines = runDirectly(() -> knuthPlass().layoutLines(
+                paragraph,
+                new RenderFont("System", 14, false, false),
+                48,
+                4
+        ));
+
+        LaidOutLine hyphenated = lines.stream()
+                .filter(line -> line.text().endsWith("-"))
+                .findFirst()
+                .orElseThrow();
+        assertTrue(hyphenated.length() > hyphenated.sourceText().length(),
+                "the visible discretionary hyphen should be a glyph, not source text");
+        assertEquals(hyphenated.endOffset(), hyphenated.offsetForColumn(hyphenated.length()),
+                "clicking/careting after the visible hyphen must resolve to the source break offset");
+        assertEquals(
+                "demonstration",
+                lines.stream().map(LaidOutLine::sourceText).reduce("", String::concat),
+                "line source text reconstruction must ignore automatically inserted hyphen glyphs"
+        );
     }
 
 
@@ -221,7 +262,7 @@ class KnuthPlassParagraphLayouterTest {
     void doesNotAutoHyphenateCodeLikeTokens() {
         String token = "https://example.com/demo";
         Paragraph paragraph = Paragraph.of(
-                ParagraphStyle.defaultBody().withAlignment(Alignment.JUSTIFY),
+                ParagraphStyle.defaultBody(),
                 token
         );
 
@@ -232,7 +273,7 @@ class KnuthPlassParagraphLayouterTest {
                 4
         ));
 
-        assertEquals(token, lines.stream().map(LaidOutLine::text).reduce("", String::concat));
+        assertEquals(token, lines.stream().map(LaidOutLine::sourceText).reduce("", String::concat));
         assertTrue(lines.stream().noneMatch(line -> line.text().endsWith("-")),
                 "code-like tokens should not gain automatic discretionary hyphens");
     }
@@ -260,6 +301,23 @@ class KnuthPlassParagraphLayouterTest {
                 .anyMatch(run -> run.width() > measurer.textWidth(run.text(), measurer.styledFont(font, run.bold(), run.italic())) + 0.25));
 
         assertTrue(foundExpandedGlue, "expected justification to widen at least one glue run");
+    }
+
+    @Test
+    void hyphenationWorksForCenterAndRightAlignedParagraphsToo() {
+        RenderFont font = new RenderFont("System", 14, false, false);
+        for (Alignment alignment : List.of(Alignment.CENTER, Alignment.RIGHT)) {
+            Paragraph paragraph = Paragraph.of(
+                    ParagraphStyle.defaultBody().withAlignment(alignment),
+                    "demonstration"
+            );
+
+            List<LaidOutLine> lines = runDirectly(() -> knuthPlass().layoutLines(paragraph, font, 48, 4));
+
+            assertTrue(lines.size() >= 2, "expected " + alignment + " paragraph to hyphenate");
+            assertTrue(lines.stream().limit(lines.size() - 1).anyMatch(line -> line.text().endsWith("-")),
+                    "expected a visible discretionary hyphen for " + alignment);
+        }
     }
 
     private static <T> T runDirectly(java.util.function.Supplier<T> supplier) {

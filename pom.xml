@@ -24,6 +24,7 @@
         <module>delos-render</module>
         <module>delos-document</module>
         <module>delos-writer-core</module>
+        <module>delos-hyphenation</module>
         <module>delos-writer-layout</module>
         <module>delos-writer-render</module>
         <module>delos-calc-core</module>

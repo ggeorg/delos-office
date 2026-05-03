@@ -14,6 +14,15 @@ import io.github.ggeorg.delos.writer.document.TextPosition;
 import io.github.ggeorg.delos.writer.editor.TextStyle;
 import io.github.ggeorg.delos.writer.layout.CaretGeometry;
 import io.github.ggeorg.delos.writer.layout.LaidOutDocument;
+import io.github.ggeorg.delos.writer.layout.DocumentLayoutEngine;
+import io.github.ggeorg.delos.writer.layout.KnuthPlassParagraphLayouter;
+import io.github.ggeorg.delos.writer.layout.PaginatingDocumentLayoutEngine;
+import io.github.ggeorg.delos.writer.render.DefaultPageRenderer;
+import io.github.ggeorg.delos.writer.render.PageRenderer;
+import io.github.ggeorg.delos.writer.render.fx.JavaFxRenderTextMeasurer;
+import io.github.ggeorg.delos.writer.render.fx.JavaFxTextMeasurer;
+import io.github.ggeorg.delos.writer.ui.ViewTheme;
+import io.github.ggeorg.delos.render.RenderTextMeasurer;
 import io.github.ggeorg.delos.writer.session.EditorSession;
 import io.github.ggeorg.delos.writer.ui.DocumentViewport;
 import javafx.beans.property.DoubleProperty;
@@ -42,6 +51,10 @@ import java.util.function.Consumer;
  */
 public final class DelosEditor extends Control {
     private final EditorSession session;
+    private final ViewTheme viewTheme;
+    private final DocumentLayoutEngine layoutEngine;
+    private final PageRenderer pageRenderer;
+    private final RenderTextMeasurer renderTextMeasurer;
     private final ReadOnlyObjectWrapper<Document> document = new ReadOnlyObjectWrapper<>(this, "document");
     private final ReadOnlyBooleanWrapper dirty = new ReadOnlyBooleanWrapper(this, "dirty");
     private final ReadOnlyObjectWrapper<CaretGeometry> caretGeometry = new ReadOnlyObjectWrapper<>(this, "caretGeometry");
@@ -58,7 +71,31 @@ public final class DelosEditor extends Control {
     private Consumer<Bounds> scrollIntoViewHandler;
 
     public DelosEditor(EditorSession session) {
+        this(
+                session,
+                ViewTheme.defaultTheme(),
+                new PaginatingDocumentLayoutEngine(new KnuthPlassParagraphLayouter(new JavaFxTextMeasurer())),
+                new DefaultPageRenderer(),
+                new JavaFxRenderTextMeasurer()
+        );
+    }
+
+    public DelosEditor(EditorSession session, ViewTheme viewTheme, DocumentLayoutEngine layoutEngine, PageRenderer pageRenderer) {
+        this(session, viewTheme, layoutEngine, pageRenderer, new JavaFxRenderTextMeasurer());
+    }
+
+    public DelosEditor(
+            EditorSession session,
+            ViewTheme viewTheme,
+            DocumentLayoutEngine layoutEngine,
+            PageRenderer pageRenderer,
+            RenderTextMeasurer renderTextMeasurer
+    ) {
         this.session = Objects.requireNonNull(session, "session");
+        this.viewTheme = Objects.requireNonNull(viewTheme, "viewTheme");
+        this.layoutEngine = Objects.requireNonNull(layoutEngine, "layoutEngine");
+        this.pageRenderer = Objects.requireNonNull(pageRenderer, "pageRenderer");
+        this.renderTextMeasurer = renderTextMeasurer == null ? new JavaFxRenderTextMeasurer() : renderTextMeasurer;
         getStyleClass().add("delos-editor");
         setFocusTraversable(false);
         session.addStateListener(sessionStateListener);
@@ -68,6 +105,22 @@ public final class DelosEditor extends Control {
 
     public EditorSession session() {
         return session;
+    }
+
+    ViewTheme viewTheme() {
+        return viewTheme;
+    }
+
+    DocumentLayoutEngine layoutEngine() {
+        return layoutEngine;
+    }
+
+    PageRenderer pageRenderer() {
+        return pageRenderer;
+    }
+
+    RenderTextMeasurer renderTextMeasurer() {
+        return renderTextMeasurer;
     }
 
     public ReadOnlyObjectProperty<Document> documentProperty() {

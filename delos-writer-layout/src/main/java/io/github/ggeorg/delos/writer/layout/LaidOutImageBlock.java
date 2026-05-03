@@ -3,9 +3,8 @@ package io.github.ggeorg.delos.writer.layout;
 /**
  * Positioned image placeholder block.
  *
- * <p>v62 keeps images block-level and selectable. Real bitmap painting and
- * resizing come later; this layout block preserves the flow rectangle and the
- * source document block identity for hit testing.</p>
+ * <p>This layout block preserves the flow rectangle and the source document
+ * block identity for hit testing.</p>
  */
 public record LaidOutImageBlock(
         int sourceBlockIndex,

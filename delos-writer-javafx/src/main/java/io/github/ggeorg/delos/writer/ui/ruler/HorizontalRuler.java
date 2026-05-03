@@ -3,9 +3,7 @@ package io.github.ggeorg.delos.writer.ui.ruler;
 import io.github.ggeorg.delos.writer.document.PageStyle;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
-import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 
 import java.util.Objects;
@@ -13,19 +11,18 @@ import java.util.Objects;
 /**
  * Visual horizontal page ruler for the writer workspace.
  *
- * <p>The ruler is read-only in v1. It mirrors the document viewport's zoom,
+ * <p>The ruler is currently read-only. It mirrors the document viewport's zoom,
  * horizontal scroll, page width, and left/right margins. Interaction such as
  * dragging margins, indents, and tab stops belongs to later document-model and
  * native-format phases.</p>
  */
-public final class HorizontalRuler extends Pane {
+public final class HorizontalRuler extends RulerCanvasPane {
     private static final double HEIGHT = 28.0;
     private static final double MAJOR_TICK_HEIGHT = 12.0;
     private static final double HALF_TICK_HEIGHT = 8.0;
     private static final double QUARTER_TICK_HEIGHT = 5.0;
     private static final double MARKER_HEIGHT = 6.0;
 
-    private final Canvas canvas = new Canvas();
     private final DoubleProperty zoomFactor = new SimpleDoubleProperty(this, "zoomFactor", 1.0);
     private final DoubleProperty visibleContentX = new SimpleDoubleProperty(this, "visibleContentX", 0.0);
     private final DoubleProperty viewportWidth = new SimpleDoubleProperty(this, "viewportWidth", 0.0);
@@ -34,19 +31,15 @@ public final class HorizontalRuler extends Pane {
     private final DoubleProperty marginRight = new SimpleDoubleProperty(this, "marginRight", 72.0);
 
     public HorizontalRuler() {
-        getStyleClass().add("horizontal-ruler");
-        setMinHeight(HEIGHT);
-        setPrefHeight(HEIGHT);
-        setMaxHeight(HEIGHT);
-        getChildren().add(canvas);
-        widthProperty().addListener((obs, oldValue, newValue) -> redraw());
-        heightProperty().addListener((obs, oldValue, newValue) -> redraw());
-        zoomFactor.addListener((obs, oldValue, newValue) -> redraw());
-        visibleContentX.addListener((obs, oldValue, newValue) -> redraw());
-        viewportWidth.addListener((obs, oldValue, newValue) -> redraw());
-        pageWidth.addListener((obs, oldValue, newValue) -> redraw());
-        marginLeft.addListener((obs, oldValue, newValue) -> redraw());
-        marginRight.addListener((obs, oldValue, newValue) -> redraw());
+        super("horizontal-ruler", 0.0, HEIGHT);
+        redrawWhenChanged(
+                zoomFactor,
+                visibleContentX,
+                viewportWidth,
+                pageWidth,
+                marginLeft,
+                marginRight
+        );
     }
 
     public DoubleProperty zoomFactorProperty() {
@@ -69,13 +62,7 @@ public final class HorizontalRuler extends Pane {
     }
 
     @Override
-    protected void layoutChildren() {
-        canvas.setWidth(getWidth());
-        canvas.setHeight(getHeight());
-        redraw();
-    }
-
-    private void redraw() {
+    protected void redraw() {
         double width = getWidth();
         double height = getHeight();
         if (width <= 0 || height <= 0) {
@@ -89,7 +76,7 @@ public final class HorizontalRuler extends Pane {
         double pageRight = pageLeft + pageWidthValue * zoom;
         double pixelsPerInch = RulerMetrics.pixelsPerInch(zoom);
 
-        GraphicsContext gc = canvas.getGraphicsContext2D();
+        GraphicsContext gc = canvas().getGraphicsContext2D();
         gc.clearRect(0, 0, width, height);
         gc.setFill(Color.web("#f8fafc"));
         gc.fillRect(0, 0, width, height);

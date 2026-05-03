@@ -4,9 +4,7 @@ import io.github.ggeorg.delos.writer.document.PageStyle;
 import io.github.ggeorg.delos.writer.ui.ViewTheme;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
-import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 
 import java.util.Objects;
@@ -19,14 +17,13 @@ import java.util.Objects;
  * top/bottom margin markers. Margin editing belongs to a later page-setup
  * phase once the document model and native file format can persist it.</p>
  */
-public final class VerticalRuler extends Pane {
+public final class VerticalRuler extends RulerCanvasPane {
     private static final double WIDTH = 28.0;
     private static final double MAJOR_TICK_WIDTH = 12.0;
     private static final double HALF_TICK_WIDTH = 8.0;
     private static final double QUARTER_TICK_WIDTH = 5.0;
     private static final double MARKER_SIZE = 6.0;
 
-    private final Canvas canvas = new Canvas();
     private final DoubleProperty zoomFactor = new SimpleDoubleProperty(this, "zoomFactor", 1.0);
     private final DoubleProperty visibleContentY = new SimpleDoubleProperty(this, "visibleContentY", 0.0);
     private final DoubleProperty viewportHeight = new SimpleDoubleProperty(this, "viewportHeight", 0.0);
@@ -37,22 +34,17 @@ public final class VerticalRuler extends Pane {
     private final DoubleProperty interPageGap = new SimpleDoubleProperty(this, "interPageGap", ViewTheme.defaultTheme().interPageGap());
 
     public VerticalRuler() {
-        getStyleClass().add("vertical-ruler");
-        setMinWidth(WIDTH);
-        setPrefWidth(WIDTH);
-        setMaxWidth(WIDTH);
-        getChildren().add(canvas);
-
-        widthProperty().addListener((obs, oldValue, newValue) -> redraw());
-        heightProperty().addListener((obs, oldValue, newValue) -> redraw());
-        zoomFactor.addListener((obs, oldValue, newValue) -> redraw());
-        visibleContentY.addListener((obs, oldValue, newValue) -> redraw());
-        viewportHeight.addListener((obs, oldValue, newValue) -> redraw());
-        pageHeight.addListener((obs, oldValue, newValue) -> redraw());
-        marginTop.addListener((obs, oldValue, newValue) -> redraw());
-        marginBottom.addListener((obs, oldValue, newValue) -> redraw());
-        outerPadding.addListener((obs, oldValue, newValue) -> redraw());
-        interPageGap.addListener((obs, oldValue, newValue) -> redraw());
+        super("vertical-ruler", WIDTH, 0.0);
+        redrawWhenChanged(
+                zoomFactor,
+                visibleContentY,
+                viewportHeight,
+                pageHeight,
+                marginTop,
+                marginBottom,
+                outerPadding,
+                interPageGap
+        );
     }
 
     public DoubleProperty zoomFactorProperty() {
@@ -81,13 +73,7 @@ public final class VerticalRuler extends Pane {
     }
 
     @Override
-    protected void layoutChildren() {
-        canvas.setWidth(getWidth());
-        canvas.setHeight(getHeight());
-        redraw();
-    }
-
-    private void redraw() {
+    protected void redraw() {
         double width = getWidth();
         double height = getHeight();
         if (width <= 0.0 || height <= 0.0) {
@@ -108,7 +94,7 @@ public final class VerticalRuler extends Pane {
         );
         double pixelsPerInch = RulerMetrics.pixelsPerInch(zoom);
 
-        GraphicsContext gc = canvas.getGraphicsContext2D();
+        GraphicsContext gc = canvas().getGraphicsContext2D();
         gc.clearRect(0, 0, width, height);
         gc.setFill(Color.web("#f8fafc"));
         gc.fillRect(0, 0, width, height);

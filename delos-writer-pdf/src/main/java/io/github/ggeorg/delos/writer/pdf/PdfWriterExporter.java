@@ -20,10 +20,10 @@ import java.util.Objects;
 /**
  * Concrete Writer PDF exporter.
  *
- * <p>H33 intentionally avoids a generic output framework. The exporter consumes
- * the immutable Writer layout and renders every page through the same
- * PageRenderer used by the live editor, with {@code PDF_EXPORT} destination
- * policy suppressing editor-only chrome, selection, and caret overlays.</p>
+ * <p>The exporter consumes the immutable Writer layout and renders every page
+ * through the same PageRenderer used by the live editor, with {@code PDF_EXPORT}
+ * destination policy suppressing editor-only chrome, selection, and caret
+ * overlays.</p>
  */
 public final class PdfWriterExporter {
     private final PageRenderer renderer;

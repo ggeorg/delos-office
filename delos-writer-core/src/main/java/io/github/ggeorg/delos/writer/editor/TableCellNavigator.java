@@ -6,11 +6,10 @@ import io.github.ggeorg.delos.writer.document.TableBlock;
 import io.github.ggeorg.delos.writer.document.TableCellSelection;
 
 /**
- * Navigation helper for the coarse-grained table-cell selection model.
+ * Navigation helper for table-cell selections.
  *
- * <p>v72 still treats a table cell as a selected atomic editing target, not as a
- * nested caret surface. This class only moves the selected cell address inside a
- * top-level {@link TableBlock}; callers decide how to handle table boundaries.</p>
+ * <p>A table cell can be selected as an atomic editing target while richer
+ * in-cell caret placement evolves independently.</p>
  */
 public final class TableCellNavigator {
     public TableCellSelection nextCell(Document document, TableCellSelection current) {

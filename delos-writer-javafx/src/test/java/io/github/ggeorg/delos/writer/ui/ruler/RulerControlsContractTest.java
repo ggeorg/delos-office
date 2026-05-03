@@ -13,7 +13,7 @@ final class RulerControlsContractTest {
     void horizontalRulerTracksViewportScrollZoomAndPageMargins() throws IOException {
         String source = Files.readString(Path.of("src/main/java/io/github/ggeorg/delos/writer/ui/ruler/HorizontalRuler.java"));
 
-        assertTrue(source.contains("public final class HorizontalRuler"));
+        assertTrue(source.contains("public final class HorizontalRuler extends RulerCanvasPane"));
         assertTrue(source.contains("visibleContentXProperty()"));
         assertTrue(source.contains("viewportWidthProperty()"));
         assertTrue(source.contains("public void setPageStyle(PageStyle pageStyle)"));
@@ -28,7 +28,7 @@ final class RulerControlsContractTest {
     void verticalRulerTracksViewportScrollZoomAndPageMargins() throws IOException {
         String source = Files.readString(Path.of("src/main/java/io/github/ggeorg/delos/writer/ui/ruler/VerticalRuler.java"));
 
-        assertTrue(source.contains("public final class VerticalRuler"));
+        assertTrue(source.contains("public final class VerticalRuler extends RulerCanvasPane"));
         assertTrue(source.contains("visibleContentYProperty()"));
         assertTrue(source.contains("viewportHeightProperty()"));
         assertTrue(source.contains("public void setPageStyle(PageStyle pageStyle)"));
@@ -38,5 +38,16 @@ final class RulerControlsContractTest {
         assertTrue(source.contains("RulerMetrics.visiblePageRange"));
         assertTrue(source.contains("RulerMetrics.pageTopInViewport"));
         assertTrue(source.contains("drawMargins"));
+    }
+
+
+    @Test
+    void rulerCanvasLifecycleIsSharedByOneSmallBasePane() throws IOException {
+        String source = Files.readString(Path.of("src/main/java/io/github/ggeorg/delos/writer/ui/ruler/RulerCanvasPane.java"));
+
+        assertTrue(source.contains("abstract class RulerCanvasPane extends Pane"));
+        assertTrue(source.contains("protected final Canvas canvas()"));
+        assertTrue(source.contains("redrawWhenChanged"));
+        assertTrue(source.contains("layoutChildren()"));
     }
 }
